@@ -10,7 +10,7 @@
 ## Integrating with your Vapor project
 Start by adding the repo to your `Package.swift`
 ~~~~swift
-.Package(url: "https://github.com/Andrewangeta/Telesign.git", Version(0,1,0, prereleaseIdentifiers: ["beta"]))
+.Package(url: "https://github.com/vapor-community/Telesign.git", Version(0,1,0, prereleaseIdentifiers: ["beta"]))
 ~~~~
 
 You'll need a config file as well. Place a `telesign.json` file in your `Config` folder
