@@ -24,7 +24,7 @@ class MessagingTests: XCTestCase
             drop = try self.makeDroplet()
             
             referenceId = try drop?.telesign?.messaging.send(message: "Telesign Vapor",
-                                                             to: "12512633579",
+                                                             to: "",
                                                              messageType: MessageType.ARN,
                                                              callbackUrl: nil,
                                                              lifecycleEvent: nil,

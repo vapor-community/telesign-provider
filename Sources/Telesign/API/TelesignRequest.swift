@@ -9,7 +9,6 @@
 import Foundation
 import Vapor
 import HTTP
-import Errors
 import Crypto
 
 internal enum HTTPMethod: String {
