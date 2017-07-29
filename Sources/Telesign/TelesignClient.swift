@@ -17,6 +17,7 @@ public final class TelesignClient
     public private(set) var messaging: Messaging!
     public private(set) var phoneid: PhoneId!
     public private(set) var score: Score!
+    public private(set) var voice: Voice!
     
     init(apiKey: String, clientId: String)
     {
@@ -30,5 +31,6 @@ public final class TelesignClient
         self.messaging = Messaging(client: self)
         self.phoneid = PhoneId(client: self)
         self.score = Score(client: self)
+        self.voice = Voice(client: self)
     }
 }

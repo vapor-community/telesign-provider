@@ -1,18 +1,17 @@
 //
-//  MessagingTests.swift
+//  VoiceTests.swift
 //  Telesign
 //
-//  Created by Andrew Edwards on 7/22/17.
+//  Created by Andrew Edwards on 7/29/17.
 //
 //
-
 
 import XCTest
 
 @testable import Telesign
 @testable import Vapor
 
-class MessagingTests: XCTestCase
+class VoiceTests: XCTestCase
 {
     var drop: Droplet?
     var referenceId: String = ""
@@ -23,12 +22,12 @@ class MessagingTests: XCTestCase
         {
             drop = try self.makeDroplet()
             
-            referenceId = try drop?.telesign?.messaging.send(message: "Telesign Vapor",
+            referenceId = try drop?.telesign?.voice.send(message: "Hello Vapor",
                                                              to: "",
                                                              messageType: MessageType.ARN,
+                                                             voice: .englishUS,
                                                              callbackUrl: nil,
                                                              lifecycleEvent: nil,
-                                                             senderId: nil,
                                                              originatingIp: nil).referenceId ?? ""
         }
         catch let error as TelesignError
@@ -62,7 +61,7 @@ class MessagingTests: XCTestCase
     {
         do
         {
-            let response = try drop?.telesign?.messaging.getResultFor(reference: referenceId)
+            let response = try drop?.telesign?.voice.getResultFor(reference: referenceId)
             
             XCTAssertNotNil(response)
         }
@@ -84,17 +83,15 @@ class MessagingTests: XCTestCase
         }
     }
     
-    func testMessageNotRejectedAFter10Seconds() throws
+    func testCallSuccessfullyPlaced() throws
     {
         do
         {
-            sleep(10)
-            
-            let response = try drop?.telesign?.messaging.getResultFor(reference: referenceId)
+            let response = try drop?.telesign?.voice.getResultFor(reference: referenceId)
             
             XCTAssertNotNil(response)
             
-            XCTAssertLessThan(response?.code ?? 500, 500)
+            XCTAssertNotEqual(response?.code, 104)
         }
         catch let error as TelesignError
         {
@@ -114,3 +111,4 @@ class MessagingTests: XCTestCase
         }
     }
 }
+
