@@ -134,7 +134,7 @@ public final class TelesignRequest<T: TelesignResponse>
     @discardableResult
     public func serializedResponse() throws -> T
     {
-        guard self.response.status == .ok else
+        guard self.response.status.statusCode <= 299 else
         {
             throw TelesignError.connectionError(self.response.status)
         }
