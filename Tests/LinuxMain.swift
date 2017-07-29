@@ -7,7 +7,7 @@ import XCTest
 extension MessagingTests {
 static var allTests = [
   ("testGetMessageSatus", testGetMessageSatus),
-  ("testMessageSuccessfullyDeliveredAFter10Seconds", testMessageSuccessfullyDeliveredAFter10Seconds),
+  ("testMessageNotRejectedAFter10Seconds", testMessageNotRejectedAFter10Seconds),
 ]
 }
 
@@ -23,9 +23,17 @@ static var allTests = [
 ]
 }
 
+extension VoiceTests {
+static var allTests = [
+  ("testGetMessageSatus", testGetMessageSatus),
+  ("testCallSuccessfullyPlaced", testCallSuccessfullyPlaced),
+]
+}
+
 
 XCTMain([
   testCase(MessagingTests.allTests),
   testCase(PhoneIdTests.allTests),
   testCase(ScoreTests.allTests),
+  testCase(VoiceTests.allTests),
 ])
