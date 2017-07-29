@@ -44,10 +44,11 @@ print(status)
 ~~~~
 
 ## Implementation Progress
-* [x] Messaging API
-* [x] PhoneId API
-* [x] Score API
-* [ ] Voice API
+* [x] Messaging
+* [x] PhoneId
+* [x] Score
+* [x] Voice
+
 
 ## Testing for those who want to fork a new branch
 
