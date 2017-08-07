@@ -17,6 +17,7 @@ public final class Messaging
         self.client = client
     }
     
+    @discardableResult
     public func send(message: String, to recepient: String, messageType: MessageType, callbackUrl: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> MessageResponse
     {
         var body = Node([:])
