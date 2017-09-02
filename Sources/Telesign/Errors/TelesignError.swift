@@ -19,7 +19,7 @@ public enum TelesignError: Error
     
     case malformedEncodedBody
     
-    case connectionError(Status)
+    case connectionError(String,Int)
     
     var localizedDescription: String
     {
@@ -33,7 +33,7 @@ public enum TelesignError: Error
         
         case .malformedEncodedBody: return "Got a malformed encoded body. Check your encoded values."
         
-        case .connectionError(let status): return "\(status.reasonPhrase)"
+        case .connectionError(let description, let code): return "Error code \(code). \(description)"
         }
     }
 }

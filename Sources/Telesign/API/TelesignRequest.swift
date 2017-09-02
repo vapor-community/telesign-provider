@@ -136,7 +136,14 @@ public final class TelesignRequest<T: TelesignResponse>
     {
         guard self.response.status.statusCode <= 299 else
         {
-            throw TelesignError.connectionError(self.response.status)
+            guard let message = response.json?["status"]?["description"]?.string,
+                  let code = response.json?["status"]?["code"]?.int
+            else
+            {
+                throw self.response.status
+            }
+            
+            throw TelesignError.connectionError(message, code)
         }
         
         guard let value = self.response.json else { throw TelesignError.malformedEncodedBody }
