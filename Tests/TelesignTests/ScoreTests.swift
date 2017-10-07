@@ -19,7 +19,7 @@ class ScoreTests: XCTestCase
         {
             let drop = try self.makeDroplet()
             
-            let score = try drop.telesign?.score.get(for: "", lifecycleEvent: .transact, originatingIp: nil, deviceId: nil, accountId: nil, emailAddress: nil)
+            let score = try drop.telesign?.score.get(for: "16143838792", lifecycleEvent: .transact, originatingIp: nil, deviceId: nil, accountId: nil, emailAddress: nil)
             
             XCTAssertNotNil(score)
         }

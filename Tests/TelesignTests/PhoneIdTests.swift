@@ -19,7 +19,7 @@ class PhoneIdTests: XCTestCase
         {
             let drop = try self.makeDroplet()
             
-            let phoneId = try drop.telesign?.phoneid.get(for: "", lifecycleEvent: nil, originatingIp: nil)
+            let phoneId = try drop.telesign?.phoneid.get(for: "16143838792", lifecycleEvent: nil, originatingIp: nil)
             
             XCTAssertNotNil(phoneId)
         }
