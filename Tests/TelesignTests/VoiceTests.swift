@@ -23,7 +23,7 @@ class VoiceTests: XCTestCase
             drop = try self.makeDroplet()
             
             referenceId = try drop?.telesign?.voice.send(message: "Hello Vapor",
-                                                             to: "",
+                                                             to: "16143838792",
                                                              messageType: MessageType.ARN,
                                                              voice: .englishUS,
                                                              callbackUrl: nil,
