@@ -2,6 +2,7 @@
 
 ![Swift](http://img.shields.io/badge/swift-3.1-brightgreen.svg)
 ![Vapor](http://img.shields.io/badge/vapor-2.0-brightgreen.svg)
+[![Build Status](http://circleci-badges-max.herokuapp.com/img/vapor-community/Telesign/master?token=)](https://circleci.com/gh/vapor-community/Telesign/tree/master)
 
 
 ## What's Telesign?
