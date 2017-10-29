@@ -10,6 +10,7 @@
 
 ## Integrating with your Vapor project
 Start by adding the repo to your `Package.swift`
+
 For Swift 3
 ~~~~swift
 .Package(url: "https://github.com/vapor-community/Telesign.git", Version(1,0,0))
