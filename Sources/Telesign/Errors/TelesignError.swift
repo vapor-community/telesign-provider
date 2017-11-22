@@ -6,9 +6,6 @@
 //
 //
 
-import Node
-import HTTP
-
 public enum TelesignError: Error
 {
     case missingConfig

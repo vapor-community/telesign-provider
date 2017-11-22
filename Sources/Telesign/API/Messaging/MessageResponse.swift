@@ -7,30 +7,27 @@
 //
 
 import Foundation
-import Vapor
+import HTTP
 
-public final class MessageResponse: TelesignResponse
+public protocol MessageResponse
 {
-    public private(set) var referenceId: String?
-    public private(set) var submitTimestamp: Date?
-    public private(set) var code: Int?
-    public private(set) var updatedOn: Date?
-    public private(set) var description: String?
+    var referenceId: String? { get }
+    var submitTimestamp: Date? { get }
+    var status: Status? { get }
+}
+
+public struct TelesignMessageResponse: TelesignResponse, MessageResponse
+{
+    public static var defaultMediaType: MediaType = .json
     
-    public init(node: Node) throws
-    {
-        self.referenceId = try node.get("reference_id")
-        self.submitTimestamp = try node.get("submit_timestamp")
-        if let status = node["status"]?.object
-        {
-            self.code = status["code"]?.int
-            self.updatedOn = status["updated_on"]?.date
-            self.description = status["description"]?.string
-        }
-    }
+    public var referenceId: String?
+    public var submitTimestamp: Date?
+    public var status: Status?
     
-    public func makeNode(in context: Context?) throws -> Node
+    enum CodingKeys: String, CodingKey
     {
-        return try Node(node: [:])
+        case referenceId = "reference_id"
+        case submitTimestamp = "submit_timestamp"
+        case status = "status"
     }
 }

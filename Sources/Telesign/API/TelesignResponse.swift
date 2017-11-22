@@ -6,8 +6,7 @@
 //
 //
 
-import Foundation
 import Vapor
+import HTTP
 
-public protocol TelesignResponse: NodeInitializable, NodeRepresentable{}
-
+public protocol TelesignResponse: Content{}

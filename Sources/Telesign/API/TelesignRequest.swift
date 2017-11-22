@@ -9,65 +9,86 @@
 import Foundation
 import Vapor
 import HTTP
+import TCP
+import Async
 import Crypto
 
-internal enum HTTPMethod: String {
-    case get = "GET"
-    case post = "POST"
-    case patch = "PATCH"
-    case put = "PUT"
-    case delete = "DELETE"
+public protocol TelesignRequest
+{
+    associatedtype T: TelesignResponse
+    
+    var response: Response! { get }
+    var httpClient: HTTPClient! { get }
+    var telesignClient: TelesignClient { get }
+    
+    func post(path: String, body: [String: String]) throws
+    func get(path: String) throws
+    func generateHeaders(path: String, method: HTTP.Method, body: [String: String]) throws -> Headers
+    func serializedResponse() throws -> T
 }
 
-public final class TelesignRequest<T: TelesignResponse>
+public class APIRequest<T: TelesignResponse>: TelesignRequest
 {
+    public var httpClient: HTTPClient!
+    
     private let uri = "https://rest-api.telesign.com"
     
-    var response: HTTP.Response!
+    public var response: Response!
     
-    let httpClient = EngineClient.factory
-    
-    let telesignClient: TelesignClient
+    public let telesignClient: TelesignClient
 
-    init(client: TelesignClient)
+    init(_ client: TelesignClient)
     {
-        self.telesignClient = client
+        telesignClient = client
+        
+        //httpClient = try HTTPClient(tcp: TCPClient(socket: Socket(), worker: DispatchQueue(label: "telesign")))
+        //let socket = try Socket()
+
+        //try socket.connect(hostname: uri, port: 443)
+        
+        //let client = TCPClient(socket: socket, worker: DispatchQueue(label: "telesign"))
+
+        
+//        httpClient = socket.writable(queue: DispatchQueue(label: "telesign")).map {
+//
+//
+//            client.start()
+//
+//            return HTTPClient(tcp: client)
+//        }
     }
     
-    func post(path: String, body: Node?) throws
+    public func post(path: String, body: [String: String]) throws
     {
-        let headers = try self.generateHeaders(path: path, method: .post, body: body)
+        //let headers = try self.generateHeaders(path: path, method: .post, body: body)
         
-        var finalBody: BodyRepresentable? = nil
+        //var finalBody: BodyRepresentable? = nil
         
-        if let body = body?.object
+        let queryParams = body.map { URLQueryItem(name: $0.key, value: $0.value) }
+        
+        guard var components = URLComponents(string: "")
+        else
         {
-            let queryParams = body.map { URLQueryItem(name: $0.key, value: $0.value.string ?? "") }
-            
-            guard var components = URLComponents(string: "")
-            else
-            {
-                throw TelesignError.malformedEncodedBody
-            }
-            
-            components.queryItems =  queryParams
-            
-            let encodedString = components.url?.absoluteString.replacingOccurrences(of: "?", with: "").removingPercentEncoding ?? ""
-            
-            finalBody = Body.data(encodedString.makeBytes())
+            throw TelesignError.malformedEncodedBody
         }
         
-        self.response = try self.httpClient.post(uri + path, query: [:], headers, finalBody, through: [])
-    }
-    
-    func get(path: String) throws
-    {
-        let headers = try self.generateHeaders(path: path, method: .get, body: nil)
+        components.queryItems =  queryParams
         
-        self.response = try self.httpClient.get(uri + path, query: [:], headers, nil, through: [])
+        _ = components.url?.absoluteString.replacingOccurrences(of: "?", with: "").removingPercentEncoding ?? ""
+        
+        //finalBody = Body.data(encodedString.makeBytes())
+        
+        //self.response = try self.httpClient.post(uri + path, query: [:], headers, finalBody, through: [])
     }
     
-    func generateHeaders(path: String, method: HTTPMethod, body: Node?) throws -> [HeaderKey: String]
+    public func get(path: String) throws
+    {
+        let headers = try generateHeaders(path: path, method: .get, body: [:])
+        
+       // self.response = try self.httpClient.send(request: <#T##RequestRepresentable#>)//get(uri + path, query: [:], headers, nil, through: [])
+    }
+    
+    public func generateHeaders(path: String, method: HTTP.Method, body: [String: String]) throws -> Headers
     {
         let contentType = (method == .post || method == .put) ? "application/x-www-form-urlencoded" : ""
         
@@ -80,52 +101,41 @@ public final class TelesignRequest<T: TelesignResponse>
         let date = formatter.string(from: Date())
         
         var stringToSignArray = [
-            "\(method.rawValue)\n",
+            "\(method.string)\n",
             "\(contentType)\n",
             "\n",
             "x-ts-auth-method:\(authMethod)\n",
             "x-ts-date:\(date)\n"]
+
+        let queryParams = body.map { URLQueryItem(name: $0.key, value: $0.value) }
         
-        if let body = body?.object
+        guard var components = URLComponents(string: "")
+        else
         {
-            let queryParams = body.map { URLQueryItem(name: $0.key, value: $0.value.string ?? "") }
-            
-            guard var components = URLComponents(string: "")
-            else
-            {
-                throw TelesignError.malformedEncodedBody
-            }
-            
-            components.queryItems =  queryParams
-            
-            let encodedString = components.url?.absoluteString.replacingOccurrences(of: "?", with: "") ?? ""
-            
-            stringToSignArray.append("\(encodedString)\n")
+            throw TelesignError.malformedEncodedBody
         }
+        
+        components.queryItems =  queryParams
+        
+        let encodedString = components.url?.absoluteString.replacingOccurrences(of: "?", with: "") ?? ""
+        
+        stringToSignArray.append("\(encodedString)\n")
+   
         
         stringToSignArray.append("\(path)")
         
-        let stringToSign = stringToSignArray.joined(separator: "").removingPercentEncoding ?? ""
+        let stringToSign = (stringToSignArray.joined(separator: "").removingPercentEncoding ?? "").data(using: .utf8) ?? Data()
         
-        guard let apikey = self.telesignClient.apiKey else
-        {
-            throw TelesignError.missingAPIKey
-        }
-    
-        guard let clientId = self.telesignClient.clientId else
-        {
-            throw TelesignError.missingClientId
-        }
+        let signature = try Base64Encoder.encode(data: HMAC<SHA256>.authenticate(stringToSign, withKey: Base64Decoder.decode(string: telesignClient.apiKey)))
+        //(.sha256, stringToSign.makeBytes(), key: Base64Encoder.decode(telesignClient.apiKey.makeBytes()))).makeString()
         
-        let signature = try Base64Encoder().encode(HMAC.make(.sha256, stringToSign.makeBytes(), key: Base64Encoder().decode(apikey.makeBytes()))).makeString()
+        let authorization = "TSA \(telesignClient.clientId):\(signature)"
         
-        let authorization = "TSA \(clientId):\(signature)"
-        
-        let headers: [HeaderKey: String] = [
-            HeaderKey.authorization: authorization,
-            HeaderKey.contentType: contentType,
-            HeaderKey("x-ts-date"): "\(date)",
-            HeaderKey("x-ts-auth-method"): authMethod
+        let headers: Headers = [
+            Headers.Name.authorization: authorization,
+            Headers.Name.contentType: contentType,
+            Headers.Name("x-ts-date"): "\(date)",
+            Headers.Name("x-ts-auth-method"): authMethod
         ]
         
         return headers
@@ -134,20 +144,19 @@ public final class TelesignRequest<T: TelesignResponse>
     @discardableResult
     public func serializedResponse() throws -> T
     {
-        guard self.response.status.statusCode <= 299 else
+        let decoder = JSONDecoder()
+        
+        guard response.status.code <= 299 else
         {
-            guard let message = response.json?["status"]?["description"]?.string,
-                  let code = response.json?["status"]?["code"]?.int
-            else
-            {
-                throw self.response.status
-            }
+            let status = try decoder.decode(Status.self, from: response.body)
             
-            throw TelesignError.connectionError(message, code)
+            throw TelesignError.connectionError(status.description ?? "Unknown Error", status.code ?? 500)
         }
         
-        guard let value = self.response.json else { throw TelesignError.malformedEncodedBody }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E, d MMM yyyy HH:mm:ss z"
+        decoder.dateDecodingStrategy = .formatted(formatter)
         
-        return try T(node: value)
+        return try decoder.decode(T.self, from: response.body)
     }
 }

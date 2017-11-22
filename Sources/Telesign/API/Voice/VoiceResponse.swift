@@ -7,38 +7,48 @@
 //
 
 import Foundation
-import Vapor
+import HTTP
 
-public final class VoiceResponse: TelesignResponse
+public protocol VoiceResponse
 {
-    public private(set) var referenceId: String?
-    public private(set) var voice: VoiceLanguage?
-    public private(set) var voiceResponse: Node?
-    public private(set) var code: Int?
-    public private(set) var updatedOn: Date?
-    public private(set) var description: String?
+    var referenceId: String? { get }
+    var voice: VoiceLanguage? { get }
+    var userInputResponse: UserInputResponse? { get }
+    var status: Status? { get }
+}
+
+public struct TelesignVoiceResponseWithLanguage: TelesignResponse, VoiceResponse
+{
+    public static var defaultMediaType: MediaType = .json
     
-    public init(node: Node) throws
+    public var referenceId: String?
+    public var voice: VoiceLanguage?
+    public var userInputResponse: UserInputResponse?
+    public var status: Status?
+    
+    enum CodingKeys: String, CodingKey
     {
-        self.referenceId = try node.get("reference_id")
-        if let v = node["voice"]?.string
-        {
-            self.voice = VoiceLanguage(rawValue: v)
-        }
-        if let voice = node["voice"]?.object
-        {
-            self.voiceResponse = Node(voice)
-        }
-        if let status = node["status"]?.object
-        {
-            self.code = status["code"]?.int
-            self.updatedOn = status["updated_on"]?.date
-            self.description = status["description"]?.string
-        }
+        case referenceId = "reference_id"
+        case voice = "voice"
+        case userInputResponse = ""
+        case status = "status"
     }
+}
+
+public struct TelesignVoiceResponseWithUserInput: TelesignResponse, VoiceResponse
+{
+    public static var defaultMediaType: MediaType = .json
     
-    public func makeNode(in context: Context?) throws -> Node
+    public var referenceId: String?
+    public var voice: VoiceLanguage?
+    public var userInputResponse: UserInputResponse?
+    public var status: Status?
+    
+    enum CodingKeys: String, CodingKey
     {
-        return try Node(node: [:])
+        case referenceId = "reference_id"
+        case voice = ""
+        case userInputResponse = "voice"
+        case status = "status"
     }
 }

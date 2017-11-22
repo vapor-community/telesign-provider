@@ -1,16 +1,16 @@
+// swift-tools-version:4.0
 import PackageDescription
 
 let package = Package(
     name: "Telesign",
-    dependencies: [
-        .Package(url: "https://github.com/vapor/vapor.git", majorVersion: 2)
+    products: [
+        .library(name: "Telesign", targets: ["Telesign"])
     ],
-    exclude: [
-        "Config",
-        "Database",
-        "Localization",
-        "Public",
-        "Resources",
+    dependencies: [
+        .package(url: "https://github.com/vapor/vapor.git", .exact("3.0.0-alpha.2"))
+    ],
+    targets: [
+        .target(name: "Telesign", dependencies: ["Vapor"]),
+        .testTarget(name: "TelesignTests", dependencies: ["Vapor", "Telesign"])
     ]
 )
-

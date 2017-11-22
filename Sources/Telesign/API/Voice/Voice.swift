@@ -6,57 +6,70 @@
 //
 //
 
-import Vapor
-
-public final class Voice
+public protocol VoiceRoute
 {
-    let client: TelesignClient
+    var client: TelesignClient { get }
+    
+    @discardableResult
+    func send(message: String, to recepient: String, messageType: MessageType, voice: VoiceLanguage?, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> VoiceResponse
+    
+    func getResultFor(reference: String) throws -> VoiceResponse
+}
+
+public struct Voice: VoiceRoute
+{
+    public let client: TelesignClient
     
     init(client: TelesignClient)
     {
         self.client = client
     }
     
-    public func send(message: String, to recepient: String, messageType: MessageType, voice: VoiceLanguage?, callbackUrl: String?, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> VoiceResponse
+    public func send(
+        message: String,
+        to recepient: String,
+        messageType: MessageType,
+        voice: VoiceLanguage? = nil,
+        callbackURL: String? = nil,
+        lifecycleEvent: AccountLifecycleEvent? = nil,
+        originatingIp: String? = nil
+        ) throws -> VoiceResponse
     {
-        var body = Node([:])
-        
-        body["message"] = Node(message)
-        
-        body["phone_number"] = Node(recepient)
-        
-        body["message_type"] = Node(messageType.rawValue)
-        
-        if let voicetype = voice
+        var bodyData = [
+            "message":message,
+            "phone_number": recepient,
+            "message_type": messageType.rawValue]
+
+        if let voiceLanguage = voice
         {
-            body["voice"] = Node(voicetype.rawValue)
+            bodyData["voice"] = voiceLanguage.rawValue
         }
-        
-        if let callbackurl = callbackUrl
+
+        if let callbackurl = callbackURL
         {
-            body["callback_url"] = Node(callbackurl)
+            bodyData["callback_url"] = callbackurl
         }
-        
+
         if let ale = lifecycleEvent
         {
-            body["account_lifecycle_event"] = Node(ale.rawValue)
+            bodyData["account_lifecycle_event"] = ale.rawValue
         }
-        
+
         if let ip = originatingIp
         {
-            body["originating_ip"] = Node(ip)
+            bodyData["originating_ip"] = ip
         }
         
-        let request = TelesignRequest<VoiceResponse>(client: self.client)
+        let request = try APIRequest<TelesignVoiceResponseWithLanguage>(client)
         
-        try request.post(path: "/v1/voice", body: body)
+        try request.post(path: "/v1/voice", body: bodyData)
         
         return try request.serializedResponse()
     }
     
     public func getResultFor(reference: String) throws -> VoiceResponse
     {
-        let request = TelesignRequest<VoiceResponse>(client: self.client)
+        let request = try APIRequest<TelesignVoiceResponseWithUserInput>(client)
         
         try request.get(path: "/v1/voice/\(reference)")
         

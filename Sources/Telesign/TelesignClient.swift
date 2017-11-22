@@ -8,28 +8,41 @@
 
 import Foundation
 
-public final class TelesignClient
+public protocol TelesignClient
 {
-    var apiKey: String?
+    var apiKey: String { get }
+    var clientId: String { get }
     
-    var clientId: String?
-    
-    public private(set) var messaging: Messaging!
-    public private(set) var phoneid: PhoneId!
-    public private(set) var score: Score!
-    public private(set) var voice: Voice!
+    var messaging: MessageRoute! { get }
+    var phoneid: PhoneRoute! { get }
+    var score: ScoreRoute! { get }
+    var voice: VoiceRoute! { get }
     
     init(apiKey: String, clientId: String)
+    
+    mutating func initialize()
+}
+
+public struct TClient: TelesignClient
+{
+    public var apiKey: String
+    public var clientId: String
+    
+    public var messaging: MessageRoute!
+    public var phoneid: PhoneRoute!
+    public var score: ScoreRoute!
+    public var voice: VoiceRoute!
+    
+    public init(apiKey: String, clientId: String)
     {
         self.apiKey = apiKey
-        
         self.clientId = clientId
     }
     
-    func initialize()
+    public mutating func initialize()
     {
-        self.messaging = Messaging(client: self)
-        self.phoneid = PhoneId(client: self)
+        self.messaging = Message(request: APIRequest<TelesignMessageResponse>(self))
+        self.phoneid = Phone(client: self)
         self.score = Score(client: self)
         self.voice = Voice(client: self)
     }

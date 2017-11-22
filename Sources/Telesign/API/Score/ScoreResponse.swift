@@ -6,51 +6,39 @@
 //
 //
 
-import Foundation
-import Vapor
+import HTTP
 
-public final class ScoreResponse: TelesignResponse
+public protocol ScoreResponse
 {
-    public private(set) var referenceId: String?
-    public private(set) var phoneType: PhoneType?
-    public private(set) var location: Location?
-    public private(set) var numbering: Numbering?
-    public private(set) var risk: Risk?
-    public private(set) var carrier: String?
-    public private(set) var code: Int?
-    public private(set) var updatedOn: Date?
-    public private(set) var description: String?
+    var referenceId: String? { get }
+    var phoneType: PhoneType? { get }
+    var location: Location? { get }
+    var numbering: Numbering? { get }
+    var risk: Risk? { get }
+    var carrier: Carrier? { get }
+    var status: Status? { get }
+}
+
+public struct TelesignScoreResponse: TelesignResponse, ScoreResponse
+{
+    public static var defaultMediaType: MediaType = .json
     
-    public init(node: Node) throws
-    {
-        self.referenceId = try node.get("reference_id")
-        
-        if let phonetype = node["phone_type"]?.object
-        {
-            self.phoneType = PhoneType(code: phonetype["code"]?.int, description: phonetype["description"]?.string)
-        }
-        
-        if let status = node["status"]?.object
-        {
-            self.code = status["code"]?.int
-            self.updatedOn = status["updated_on"]?.date
-            self.description = status["description"]?.string
-        }
-        
-        self.location = try node.get("location")
-        
-        self.numbering = try node.get("numbering")
-        
-        self.risk = try node.get("risk")
-        
-        if let carrier = node["carrier"]?.object
-        {
-            self.carrier = carrier["name"]?.string
-        }
-    }
+    public var referenceId: String?
+    public var phoneType: PhoneType?
+    public var location: Location?
+    public var numbering: Numbering?
+    public var risk: Risk?
+    public var carrier: Carrier?
+    public var status: Status?
     
-    public func makeNode(in context: Context?) throws -> Node
+    enum CodingKeys: String, CodingKey
     {
-        return try Node(node: [:])
+        case referenceId = "reference_id"
+        case phoneType = "phone_type"
+        case location = "location"
+        case numbering = "numbering"
+        case risk = "risk"
+        case carrier = "carrier"
+        case status = "status"
     }
 }

@@ -7,72 +7,75 @@
 //
 
 import Vapor
+import Service
 
-
-private var _telesign: TelesignClient?
-
-extension Droplet
+public struct TelesignConfig
 {
-    /*
-     Enables use of the `drop.telesign?` convenience methods.
-     */
-    public var telesign: TelesignClient?
-    {
-        get {
-            return _telesign
-        }
-        set {
-            _telesign = newValue
-        }
-    }
+    let apiKey: String
+    let clientId: String
 }
 
-public final class Provider: Vapor.Provider
+public final class TelesignProvider: Provider
 {
-    public static let repositoryName = "vapor-telesign"
+    public static let repositoryName = "telesign-provider"
     
     public let apiKey: String
     public let clientId: String
-    public let telesign: TelesignClient
+    public var telesign: TelesignClient
     
-    public convenience init(config: Config) throws
+    init(config: TelesignConfig)
     {
-        guard let telesignConfig = config["telesign"]?.object else {
-            throw TelesignError.missingConfig
-        }
-        guard let apiKey = telesignConfig["apiKey"]?.string else {
-            throw TelesignError.missingAPIKey
-        }
+        apiKey = config.apiKey
+        clientId = config.clientId
         
-        guard let clientId = telesignConfig["clientId"]?.string else {
-            throw TelesignError.missingClientId
-        }
-        
-        try self.init(apiKey: apiKey, clientId: clientId)
+        telesign = TClient(apiKey: apiKey, clientId: clientId)
     }
     
-    public init(apiKey: String, clientId: String) throws
+    public func boot(_ container: Container) throws
     {
-        self.apiKey = apiKey
-        self.clientId = clientId
-        self.telesign = TelesignClient(apiKey: apiKey, clientId: clientId)
+        telesign.initialize()
     }
     
-    public func boot(_ drop: Droplet)
-    {
-        self.telesign.initialize()
-        drop.telesign = self.telesign
-    }
+    public func register(_ services: inout Services) throws {}
     
-    public func boot(_ config: Configs.Config) throws {
-        
-    }
-    
-    public func afterInit(_ drop: Droplet) {
-        
-    }
-    
-    public func beforeRun(_ drop: Droplet) {
-        
-    }
+//    public convenience init(config: Config) throws
+//    {
+//        guard let telesignConfig = config["telesign"]?.object else {
+//            throw TelesignError.missingConfig
+//        }
+//        guard let apiKey = telesignConfig["apiKey"]?.string else {
+//            throw TelesignError.missingAPIKey
+//        }
+//
+//        guard let clientId = telesignConfig["clientId"]?.string else {
+//            throw TelesignError.missingClientId
+//        }
+//
+//        try self.init(apiKey: apiKey, clientId: clientId)
+//    }
+//
+//    public init(apiKey: String, clientId: String) throws
+//    {
+//        self.apiKey = apiKey
+//        self.clientId = clientId
+//        self.telesign = TelesignClient(apiKey: apiKey, clientId: clientId)
+//    }
+//
+//    public func boot(_ drop: Droplet)
+//    {
+//        self.telesign.initialize()
+//        drop.telesign = self.telesign
+//    }
+//
+//    public func boot(_ config: Configs.Config) throws {
+//
+//    }
+//
+//    public func afterInit(_ drop: Droplet) {
+//
+//    }
+//
+//    public func beforeRun(_ drop: Droplet) {
+//
+//    }
 }
