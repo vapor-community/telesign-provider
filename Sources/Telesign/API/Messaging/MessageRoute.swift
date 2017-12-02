@@ -19,6 +19,7 @@ public protocol MessageRoute
 public struct Message: MessageRoute
 {
     public var request: APIRequest<TelesignMessageResponse>
+    
     init(request: APIRequest<TelesignMessageResponse>)
     {
         self.request = request

@@ -6,70 +6,28 @@
 //
 //
 
-
 import XCTest
 
 @testable import Telesign
 @testable import Vapor
 @testable import HTTP
+
 class MessagingTests: XCTestCase
 {
-    // Setup client
-    // setup a spy request
-    // initialize a route
-    // call send and get functions and expect the models to be serialized properly via codable.
-    
-    var postJsonData = """
-        {
-            "reference_id": "0123456789ABCDEF0123456789ABCDEF",
-            "status": {
-                    "code": 290,
-                    "updated_on": "2015-10-03T14:51:28.709526Z",
-                    "description": "Message in progress"
-                    }
-        }
- """.data(using: .utf8)!
-    
-    var getJsonData = """
-                {
-        "reference_id": "ABCDEF0123456789ABCDEF0123456789",
-        "submit_timestamp": "Tue, 31 Jan 2017 13:36:07 GMT",
-        "status": {
-           "code": 290,
-           "updated_on": "Tue, 31 Jan 2017 13:36:11 GMT",
-           "description": "Message in progress"
-           }
-        }
-""".data(using: .utf8)!
-    
-    var message: TelesignMessageResponse!
-    
+    var messageRoute: Message!
+
     override func setUp()
     {
-        let client = MocktelesignClient(apiKey: "", clientId: "")
-        
-        let request = APIRequest<TelesignMessageResponse>(client)
-        
-        let body = Body(postJsonData)
-        
-        request.response = Response(version: Version.init(major: 1, minor: 1) , status: HTTP.Status.ok, headers: Headers(), body: body)
-        
-        client.messaging = Message(request: request)
-        
         do
         {
-            message = try client.messaging.request.serializedResponse()
+            let httpclient = try HTTPClient.connect(to: "https://www.google.com", ssl: false, on: DispatchQueue(label: "test")).blockingAwait()
             
-            //print(message)
-//            drop = try self.makeDroplet()
-//
-//            referenceId = try drop?.telesign?.messaging.send(message: "Telesign Vapor",
-//                                                             to: "16143838792",
-//                                                             messageType: MessageType.ARN,
-//                                                             callbackUrl: nil,
-//                                                             lifecycleEvent: nil,
-//                                                             senderId: nil,
-//                                                             originatingIp: nil).referenceId ?? ""
+            let mockClient = MockTelesignClient(apiKey: "", clientId: "", client: httpclient)
+            
+            let mockRequest = MockMessageAPIRequest<TelesignMessageResponse>(mockClient)
+            
+            messageRoute = Message(request: mockRequest)
+
         }
         catch let error as TelesignError
         {
@@ -93,9 +51,45 @@ class MessagingTests: XCTestCase
         }
     }
     
-    func testMessageNotNil()
+    func testSendMessageReturnsAProperModel() throws
     {
-        print(message)
-        XCTAssertNotNil(message)
+        let response = try messageRoute.send(message: "", to: "", messageType: .ARN)
+        
+        XCTAssertTrue((messageRoute.request as? MockMessageAPIRequest)?.postCalled ?? false)
+        
+        XCTAssertNotNil(response, "Message response was nil")
+        
+        XCTAssertNotNil(response.referenceId, "Reference Id is nil")
+        
+        XCTAssertNotNil(response.status, "Status is nil")
+        
+        XCTAssertNotNil(response.status?.code, "Status code is nil")
+        
+        XCTAssertNotNil(response.status?.updatedOn, "Status updated on is nil")
+        
+        XCTAssertNotNil(response.status?.description, "Status description is nil")
+        
+        XCTAssertNil(response.submitTimestamp, "Timestamp is not nil")
+    }
+    
+    func testGetMessageStatusReturnsAProperModel() throws
+    {
+        let response = try messageRoute.getResultFor(reference: "")
+        
+        XCTAssertTrue((messageRoute.request as? MockMessageAPIRequest)?.getCalled ?? false)
+        
+        XCTAssertNotNil(response, "Message response was nil")
+        
+        XCTAssertNotNil(response.referenceId, "Reference Id is nil")
+        
+        XCTAssertNotNil(response.submitTimestamp, "Timestamp is nil")
+        
+        XCTAssertNotNil(response.status, "Status is nil")
+        
+        XCTAssertNotNil(response.status?.code, "Status code is nil")
+        
+        XCTAssertNotNil(response.status?.updatedOn, "Status updated on is nil")
+        
+        XCTAssertNotNil(response.status?.description, "Status description is nil")
     }
 }
