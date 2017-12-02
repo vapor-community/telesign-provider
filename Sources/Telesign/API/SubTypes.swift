@@ -188,7 +188,7 @@ public struct PhoneType: TelesignResponse
 {
     public static var defaultMediaType: MediaType = .json
     
-    var code: Int?
+    var code: String?
     var description: String?
 }
 
