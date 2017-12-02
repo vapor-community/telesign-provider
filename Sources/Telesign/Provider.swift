@@ -8,11 +8,13 @@
 
 import Vapor
 import Service
+import HTTP
 
 public struct TelesignConfig
 {
     let apiKey: String
     let clientId: String
+    let httpClient: HTTPClient
 }
 
 public final class TelesignProvider: Provider
@@ -28,54 +30,16 @@ public final class TelesignProvider: Provider
         apiKey = config.apiKey
         clientId = config.clientId
         
-        telesign = TClient(apiKey: apiKey, clientId: clientId)
+        telesign = TClient(apiKey: apiKey, clientId: clientId, client: config.httpClient)
     }
     
     public func boot(_ container: Container) throws
     {
-        telesign.initialize()
+        telesign.initializeMessageRoutes(with: Message(request: APIRequest<TelesignMessageResponse>(telesign)))
+        telesign.initializePhoneRoutes(with: Phone(request: APIRequest<TelesignPhoneIdResponse>(telesign)))
+        telesign.initializeScoreRoutes(with: Score(request: APIRequest<TelesignScoreResponse>(telesign)))
+        // TODO: - Implement Voice Routes after telesign updates their API to handle dates correctly.
     }
     
     public func register(_ services: inout Services) throws {}
-    
-//    public convenience init(config: Config) throws
-//    {
-//        guard let telesignConfig = config["telesign"]?.object else {
-//            throw TelesignError.missingConfig
-//        }
-//        guard let apiKey = telesignConfig["apiKey"]?.string else {
-//            throw TelesignError.missingAPIKey
-//        }
-//
-//        guard let clientId = telesignConfig["clientId"]?.string else {
-//            throw TelesignError.missingClientId
-//        }
-//
-//        try self.init(apiKey: apiKey, clientId: clientId)
-//    }
-//
-//    public init(apiKey: String, clientId: String) throws
-//    {
-//        self.apiKey = apiKey
-//        self.clientId = clientId
-//        self.telesign = TelesignClient(apiKey: apiKey, clientId: clientId)
-//    }
-//
-//    public func boot(_ drop: Droplet)
-//    {
-//        self.telesign.initialize()
-//        drop.telesign = self.telesign
-//    }
-//
-//    public func boot(_ config: Configs.Config) throws {
-//
-//    }
-//
-//    public func afterInit(_ drop: Droplet) {
-//
-//    }
-//
-//    public func beforeRun(_ drop: Droplet) {
-//
-//    }
 }

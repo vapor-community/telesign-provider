@@ -8,21 +8,21 @@
 
 public protocol PhoneRoute
 {
-    var client: TelesignClient { get }
+    var request: APIRequest<TelesignPhoneIdResponse> { get }
     
     func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> PhoneIdResponse
 }
 
 public struct Phone: PhoneRoute
 {
-    public let client: TelesignClient
+    public var request: APIRequest<TelesignPhoneIdResponse>
     
-    init(client: TelesignClient)
+    init(request: APIRequest<TelesignPhoneIdResponse>)
     {
-        self.client = client
+        self.request = request
     }
 
-    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> PhoneIdResponse
+    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent? = nil, originatingIp: String? = nil) throws -> PhoneIdResponse
     {
         var bodyData: [String: String] = [:]
         
@@ -35,8 +35,6 @@ public struct Phone: PhoneRoute
         {
             bodyData["originating_ip"] = ip
         }
-        
-        let request = try APIRequest<TelesignPhoneIdResponse>(client)
         
         try request.post(path: "/v1/phoneid/\(number)", body: bodyData)
         

@@ -60,7 +60,7 @@ public struct Voice: VoiceRoute
             bodyData["originating_ip"] = ip
         }
         
-        let request = try APIRequest<TelesignVoiceResponseWithLanguage>(client)
+        let request = APIRequest<TelesignVoiceResponseWithLanguage>(client)
         
         try request.post(path: "/v1/voice", body: bodyData)
         
@@ -69,7 +69,7 @@ public struct Voice: VoiceRoute
     
     public func getResultFor(reference: String) throws -> VoiceResponse
     {
-        let request = try APIRequest<TelesignVoiceResponseWithUserInput>(client)
+        let request = APIRequest<TelesignVoiceResponseWithUserInput>(client)
         
         try request.get(path: "/v1/voice/\(reference)")
         

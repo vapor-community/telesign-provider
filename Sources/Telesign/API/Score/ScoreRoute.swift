@@ -8,18 +8,18 @@
 
 public protocol ScoreRoute
 {
-    var client: TelesignClient { get }
+    var request: APIRequest<TelesignScoreResponse> { get }
     
     func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> ScoreResponse
 }
 
 public struct Score: ScoreRoute
 {
-    public let client: TelesignClient
+    public var request: APIRequest<TelesignScoreResponse>
     
-    init(client: TelesignClient)
+    init(request: APIRequest<TelesignScoreResponse>)
     {
-        self.client = client
+        self.request = request
     }
     
     public func get(
@@ -52,8 +52,6 @@ public struct Score: ScoreRoute
         {
             bodyData["email_address"] = email
         }
-        
-        let request = try APIRequest<TelesignScoreResponse>(client)
         
         try request.post(path: "/v1/score/\(number)", body: bodyData)
         
