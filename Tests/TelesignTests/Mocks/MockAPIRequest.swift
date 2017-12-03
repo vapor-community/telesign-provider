@@ -14,7 +14,9 @@ class MockMessageAPIRequest<T: TelesignResponse>: APIRequest<T>
     var postCalled = false
     var getCalled = false
     var serializedResponseCalled = false
-    override init(_ client: TelesignClient) {
+    
+    override init(_ client: TelesignClient)
+    {
         super.init(client)
     }
     
@@ -142,4 +144,89 @@ class MockPhoneIDAPIRequest<T: TelesignResponse>: APIRequest<T>
     }
 }
 
+class MockScoreAPIRequest<T: TelesignResponse>: APIRequest<T>
+{
+    var postCalled = false
+    
+    override init(_ client: TelesignClient) {
+        super.init(client)
+    }
+    
+    override func post(path: String, body: [String : String]) throws
+    {
+        // TODO: - Update time format back to correct type
+        let jsonData = """
+        {
+           "reference_id": "B567DC5D1180011C8952823CF6B40773",
+           "status": {
+              "updated_on": "Tue, 31 Jan 2017 13:36:11 GMT",
+              "code": 300,
+              "description": "Transaction successfully completed"
+           },
+           "numbering": {
+              "original": {
+                 "complete_phone_number": "15555551212",
+                 "country_code": "1",
+                 "phone_number": "5555551212"
+              },
+             "cleansing": {
+               "call": {
+                 "country_code": "1",
+                 "phone_number": "5555551212",
+                 "cleansed_code": 105,
+                 "min_length": 10,
+                 "max_length": 10
+               },
+               "sms": {
+                 "country_code": "1",
+                 "phone_number": "5555551212",
+                 "cleansed_code": 105,
+                 "min_length": 10,
+                 "max_length": 10
+               }
+             }
+           },
+          "phone_type": {
+            "code": "8",
+            "description": "INVALID"
+          },
+          "location": {
+            "city": "Countrywide",
+            "state": null,
+            "zip": null,
+            "metro_code": null,
+            "county": null,
+            "country": {
+              "name": "United Kingdom",
+              "iso2": "GB",
+              "iso3": "GBR"
+            },
+            "coordinates": {
+              "latitude": null,
+              "longitude": null
+            },
+            "time_zone": {
+              "name": null,
+              "utc_offset_min": "0",
+              "utc_offset_max": "0"}
+          },
+          "carrier": {
+            "name": "Telefonica UK Limited"
+          },
+          "risk": {
+            "level": "high",
+            "recommendation": "block",
+            "score": 959
+          }
+        }
+        """.data(using: .utf8)!
+        
+        let responseBody = HTTPBody(jsonData)
+        
+        response = HTTPResponse(body: responseBody)
+        
+        postCalled = true
+    }
+}
 
+// TODO: - Implement Voice
