@@ -27,7 +27,6 @@ class PhoneIdTests: XCTestCase
             let mockRequest = MockPhoneIDAPIRequest<TelesignPhoneIdResponse>(mockClient)
             
             phoneIdRoute = Phone(request: mockRequest)
-            
         }
         catch let error as TelesignError
         {
@@ -51,7 +50,7 @@ class PhoneIdTests: XCTestCase
         }
     }
     
-    func testGetPhoneReturnsAProperModel() throws
+    func testGetPhoneIdReturnsAProperModel() throws
     {
         let response = try phoneIdRoute.getId(for: "")
         
@@ -61,11 +60,13 @@ class PhoneIdTests: XCTestCase
         
         XCTAssertNotNil(response.referenceId, "Reference Id is nil")
         
-        XCTAssertNotNil(response.phoneType, "PhoneType is nil")
-        
-        XCTAssertNotNil(response.phoneType?.code, "PhoneType code is nil")
-        
-        XCTAssertNotNil(response.phoneType?.description, "PhoneType description is nil")
+        XCTAssertNotNil(response.status, "Status is nil")
+
+        XCTAssertNotNil(response.status?.code, "Status code is nil")
+
+        XCTAssertNotNil(response.status?.updatedOn, "Status updated on is nil")
+
+        XCTAssertNotNil(response.status?.description, "Status description is nil")
         
         XCTAssertNotNil(response.location, "Location is nil")
         
@@ -101,12 +102,50 @@ class PhoneIdTests: XCTestCase
         
         XCTAssertNotNil(response.location?.timezone?.utcOffsetMax, "Location timezone offsetmax is nil")
         
-//        XCTAssertNotNil(response.status, "Status is nil")
-//
-//        XCTAssertNotNil(response.status?.code, "Status code is nil")
-//
-//        XCTAssertNotNil(response.status?.updatedOn, "Status updated on is nil")
-//
-//        XCTAssertNotNil(response.status?.description, "Status description is nil")
+        XCTAssertNotNil(response.numbering, "Numbering is nil")
+        
+        XCTAssertNotNil(response.numbering?.original, "Numbering original is nil")
+        
+        XCTAssertNotNil(response.numbering?.original?.completePhoneNumber, "Numbering original complete phone numnber is nil")
+        
+        XCTAssertNotNil(response.numbering?.original?.countryCode, "Numbering original country code is nil")
+        
+        XCTAssertNotNil(response.numbering?.original?.phoneNumber, "Numbering original phone numnber is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing, "Numbering cleansing is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.call, "Numbering cleansing call is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.call?.countryCode, "Numbering cleansing call country code is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.call?.phoneNumber, "Numbering cleansing call phone number is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.call?.cleansedCode, "Numbering cleansing call cleansed code is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.call?.minLength, "Numbering cleansing call min length is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.call?.maxLength, "Numbering cleansing call max length is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.sms, "Numbering cleansing sms is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.sms?.countryCode, "Numbering cleansing sms country code is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.sms?.phoneNumber, "Numbering cleansing sms phone number is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.sms?.cleansedCode, "Numbering cleansing sms cleansed code is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.sms?.minLength, "Numbering cleansing sms min length is nil")
+        
+        XCTAssertNotNil(response.numbering?.cleansing?.sms?.maxLength, "Numbering cleansing sms max length is nil")
+        
+        XCTAssertNotNil(response.phoneType, "PhoneType is nil")
+        
+        XCTAssertNotNil(response.phoneType?.code, "PhoneType code is nil")
+        
+        XCTAssertNotNil(response.phoneType?.description, "PhoneType description is nil")
+        
+        XCTAssertNotNil(response.carrier, "Carrier is nil")
+        
+        XCTAssertNotNil(response.carrier?.name, "Carrier name is nil")
     }
 }
