@@ -13,6 +13,7 @@ public protocol TelesignClient
 {
     var apiKey: String { get }
     var clientId: String { get }
+    // TODO: - Replace with Engine Client or Client protocol when available so it's easily mockable.
     var httpClient: HTTPClient { get }
     
     var messaging: MessageRoute! { get }
@@ -31,7 +32,7 @@ public protocol TelesignClient
     func initializeVoiceRoutes(with route: VoiceRoute)
 }
 
-public class TClient: TelesignClient
+public class DefaultTelesignClient: TelesignClient
 {
     public var apiKey: String
     public var clientId: String

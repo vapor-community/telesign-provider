@@ -30,7 +30,7 @@ public final class TelesignProvider: Provider
         apiKey = config.apiKey
         clientId = config.clientId
         
-        telesign = TClient(apiKey: apiKey, clientId: clientId, client: config.httpClient)
+        telesign = DefaultTelesignClient(apiKey: apiKey, clientId: clientId, client: config.httpClient)
     }
     
     public func boot(_ container: Container) throws
