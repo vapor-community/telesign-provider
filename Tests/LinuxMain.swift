@@ -6,27 +6,26 @@ import XCTest
 
 extension MessagingTests {
 static var allTests = [
-  ("testGetMessageSatus", testGetMessageSatus),
-  ("testMessageNotRejectedAFter10Seconds", testMessageNotRejectedAFter10Seconds),
+  ("testSendMessageReturnsAProperModel", testSendMessageReturnsAProperModel),
+  ("testGetMessageStatusReturnsAProperModel", testGetMessageStatusReturnsAProperModel),
 ]
 }
 
 extension PhoneIdTests {
 static var allTests = [
-  ("testPhoneIdIsAccurate", testPhoneIdIsAccurate),
+  ("testGetPhoneIdReturnsAProperModel", testGetPhoneIdReturnsAProperModel),
 ]
 }
 
 extension ScoreTests {
 static var allTests = [
-  ("testPhoneIdIsAccurate", testPhoneIdIsAccurate),
+  ("testGetPhoneReturnsAProperModel", testGetPhoneReturnsAProperModel),
 ]
 }
 
-extension VoiceTests {
+extension TelesignClientTests {
 static var allTests = [
-  ("testGetMessageSatus", testGetMessageSatus),
-  ("testCallSuccessfullyPlaced", testCallSuccessfullyPlaced),
+  ("testRoutesAreProperlyInitialized", testRoutesAreProperlyInitialized),
 ]
 }
 
@@ -35,5 +34,5 @@ XCTMain([
   testCase(MessagingTests.allTests),
   testCase(PhoneIdTests.allTests),
   testCase(ScoreTests.allTests),
-  testCase(VoiceTests.allTests),
+  testCase(TelesignClientTests.allTests),
 ])
