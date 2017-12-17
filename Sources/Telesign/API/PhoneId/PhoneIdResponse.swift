@@ -6,8 +6,6 @@
 //
 //
 
-import HTTP
-
 public protocol PhoneIdResponse
 {
     var referenceId: String? { get }
@@ -20,8 +18,6 @@ public protocol PhoneIdResponse
 
 public struct TelesignPhoneIdResponse: TelesignResponse, PhoneIdResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     public var referenceId: String?
     public var phoneType: PhoneType?
     public var location: Location?
@@ -33,9 +29,9 @@ public struct TelesignPhoneIdResponse: TelesignResponse, PhoneIdResponse
     {
         case referenceId = "reference_id"
         case phoneType = "phone_type"
-        case location = "location"
-        case numbering = "numbering"
-        case carrier = "carrier"
-        case status = "status"
+        case location
+        case numbering
+        case carrier
+        case status
     }
 }

@@ -6,25 +6,29 @@
 //
 //
 
+import Async
+
 public protocol VoiceRoute
 {
-    var client: TelesignClient { get }
+    associatedtype VR: TelesignResponse
     
     @discardableResult
-    func send(message: String, to recepient: String, messageType: MessageType, voice: VoiceLanguage?, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> VoiceResponse
+    func send(message: String, to recepient: String, messageType: MessageType, voice: VoiceLanguage?, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<VR>
     
-    func getResultFor(reference: String) throws -> VoiceResponse
+    func getResultFor(reference: String) throws -> Future<VR>
 }
 
-public struct Voice: VoiceRoute
+public struct Voice<T>: VoiceRoute where T: TelesignRequest
 {
-    public let client: TelesignClient
+    public typealias VR = T.TR
+    private var request: T
     
-    init(client: TelesignClient)
+    init(request: T)
     {
-        self.client = client
+        self.request = request
     }
     
+    @discardableResult
     public func send(
         message: String,
         to recepient: String,
@@ -33,7 +37,7 @@ public struct Voice: VoiceRoute
         callbackURL: String? = nil,
         lifecycleEvent: AccountLifecycleEvent? = nil,
         originatingIp: String? = nil
-        ) throws -> VoiceResponse
+        ) throws -> Future<VR>
     {
         var bodyData = [
             "message":message,
@@ -60,19 +64,11 @@ public struct Voice: VoiceRoute
             bodyData["originating_ip"] = ip
         }
         
-        let request = APIRequest<TelesignVoiceResponseWithLanguage>(client)
-        
-        try request.post(path: "/v1/voice", body: bodyData)
-        
-        return try request.serializedResponse()
+        return try request.post(path: "/v1/voice", body: bodyData)
     }
     
-    public func getResultFor(reference: String) throws -> VoiceResponse
+    public func getResultFor(reference: String) throws -> Future<VR>
     {
-        let request = APIRequest<TelesignVoiceResponseWithUserInput>(client)
-        
-        try request.get(path: "/v1/voice/\(reference)")
-        
-        return try request.serializedResponse()
+        return try request.get(path: "/v1/voice/\(reference)")
     }
 }

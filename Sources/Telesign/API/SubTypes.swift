@@ -6,30 +6,25 @@
 //
 
 import Foundation
-import HTTP
 
 // MARK: Status
 public struct Status: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var description: String?
     var code: Int?
     var updatedOn: Date?
     
     enum CodingKeys: String, CodingKey
     {
-        case code = "code"
+        case code
         case updatedOn = "updated_on"
-        case description = "description"
+        case description
     }
 }
 
 // MARK: Call
 public struct Call: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var countryCode: String?
     var phoneNumber: String?
     var cleansedCode: Int?
@@ -49,8 +44,6 @@ public struct Call: TelesignResponse
 // MARK: Cleansing
 public struct Cleansing: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var call: Call?
     var sms: SMS?
 }
@@ -58,8 +51,6 @@ public struct Cleansing: TelesignResponse
 // MARK: Coordinates
 public struct Coordinates: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var latitude: Double?
     var longitude: Double?
 }
@@ -67,8 +58,6 @@ public struct Coordinates: TelesignResponse
 // MARK: Country
 public struct Country: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var name: String?
     var iso2: String?
     var iso3: String?
@@ -77,8 +66,6 @@ public struct Country: TelesignResponse
 // MARK: Location
 public struct Location: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var city: String?
     var county: String?
     var state: String?
@@ -90,22 +77,20 @@ public struct Location: TelesignResponse
     
     enum CodingKeys: String, CodingKey
     {
-        case city = "city"
-        case county = "county"
-        case state = "state"
-        case zip = "zip"
+        case city
+        case county
+        case state
+        case zip
         case metroCode = "metro_code"
-        case country = "country"
+        case country
         case timezone = "time_zone"
-        case coordinates = "coordinates"
+        case coordinates
     }
 }
 
 // MARK: Numbering
 public struct Numbering: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var original: Original?
     var cleansing: Cleansing?
 }
@@ -113,8 +98,6 @@ public struct Numbering: TelesignResponse
 // MARK: Original
 public struct Original: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var completePhoneNumber: String?
     var countryCode: String?
     var phoneNumber: String?
@@ -130,8 +113,6 @@ public struct Original: TelesignResponse
 // MARK: Risk
 public struct Risk: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var level: String?
     var recommendation: String?
     var score: Int?
@@ -140,8 +121,6 @@ public struct Risk: TelesignResponse
 // MARK: SMS
 public struct SMS: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var countryCode: String?
     var phoneNumber: String?
     var cleansedCode: Int?
@@ -161,15 +140,13 @@ public struct SMS: TelesignResponse
 // MARK: Timezone
 public struct Timezone: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var name: String?
     var utcOffsetMin: String?
     var utcOffsetMax: String?
     
     enum CodingKeys: String, CodingKey
     {
-        case name = "name"
+        case name
         case utcOffsetMin = "utc_offset_min"
         case utcOffsetMax = "utc_offset_max"
     }
@@ -178,29 +155,12 @@ public struct Timezone: TelesignResponse
 // MARK: Carrier
 public struct Carrier: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var name: String?
 }
 
 // MARK: Phonetype
 public struct PhoneType: TelesignResponse
 {
-    public static var defaultMediaType: MediaType = .json
-    
     var code: String?
     var description: String?
-}
-
-// MARK: UserInputResponse
-public struct UserInputResponse: TelesignResponse
-{
-    public static var defaultMediaType: MediaType = .json
-    
-    var userInput: Int?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case userInput = "user_input"
-    }
 }

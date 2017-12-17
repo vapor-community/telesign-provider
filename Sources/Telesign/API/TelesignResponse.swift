@@ -7,6 +7,5 @@
 //
 
 import Vapor
-import HTTP
 
 public protocol TelesignResponse: Content{}

@@ -9,37 +9,61 @@
 import Foundation
 import Vapor
 import HTTP
-import TCP
 import Async
 import Crypto
 
 public protocol TelesignRequest
 {
-    associatedtype T: TelesignResponse
+    associatedtype TR: TelesignResponse
     
-    var response: HTTPResponse! { get }
-    var telesignClient: TelesignClient { get }
-    
-    func post(path: String, body: [String: String]) throws
-    func get(path: String) throws
+    func post(path: String, body: [String: String]) throws -> Future<TR>
+    func get(path: String) throws -> Future<TR>
     func generateHeaders(path: String, method: HTTPMethod, body: [String: String]) throws -> HTTPHeaders
-    func serializedResponse() throws -> T
+    func serializedResponse(response: HTTPResponse) throws -> TR
 }
 
-public class APIRequest<T: TelesignResponse>: TelesignRequest
+extension TelesignRequest
+{
+    public func serializedResponse(response: HTTPResponse) throws -> TR
+    {
+        let decoder = JSONDecoder()
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+        decoder.dateDecodingStrategy = .formatted(formatter)
+        
+        guard response.status.code <= 299 else
+        {
+            let status = try decoder.decode(Status.self, from: response.body.data ?? Data())
+            
+            throw TelesignError.connectionError(status.description ?? "Unknown Error", status.code ?? 500)
+        }
+        
+        return try decoder.decode(TR.self, from: response.body.data ?? Data())
+    }
+    
+    public func generateHeaders(path: String, method: HTTPMethod, body: [String : String]) throws -> HTTPHeaders
+    {
+        return [:]
+    }
+}
+
+public class APIRequest<TR: TelesignResponse>: TelesignRequest
 {
     private let uri = "https://rest-api.telesign.com"
     
-    public var response: HTTPResponse!
+    private let apiKey: String
+    private let clientId: String
+    private let httpClient: HTTPClient
     
-    public let telesignClient: TelesignClient
-
-    init(_ client: TelesignClient)
+    init(apiKey: String, clientId: String, httpClient: HTTPClient)
     {
-        telesignClient = client
+        self.apiKey = apiKey
+        self.clientId = clientId
+        self.httpClient = httpClient
     }
     
-    public func post(path: String, body: [String: String]) throws
+    public func post(path: String, body: [String: String]) throws -> Future<TR>
     {
         let queryParams = body.map { URLQueryItem(name: $0.key, value: $0.value) }
         
@@ -59,16 +83,22 @@ public class APIRequest<T: TelesignResponse>: TelesignRequest
         
         let request = HTTPRequest(method: .post, uri: URI(stringLiteral: uri + path), headers: headers, body: body)
         
-        self.response = try telesignClient.httpClient.send(request: request).blockingAwait()
+        return httpClient.send(request: request).map { (response) -> TR in
+            
+            return try self.serializedResponse(response: response)
+        }
     }
     
-    public func get(path: String) throws
+    public func get(path: String) throws -> Future<TR>
     {
         let headers = try generateHeaders(path: path, method: .get, body: [:])
         
         let request = HTTPRequest(method: .get, uri: URI(stringLiteral: uri + path), headers: headers)
         
-        self.response = try telesignClient.httpClient.send(request: request).blockingAwait()
+        return httpClient.send(request: request).map { (response) -> TR in
+            
+            return try self.serializedResponse(response: response)
+        }
     }
     
     public func generateHeaders(path: String, method: HTTPMethod, body: [String: String]) throws -> HTTPHeaders
@@ -108,10 +138,11 @@ public class APIRequest<T: TelesignResponse>: TelesignRequest
         
         let stringToSign = (stringToSignArray.joined(separator: "").removingPercentEncoding ?? "").data(using: .utf8) ?? Data()
         
-        let signature = try Base64Encoder.encode(data: HMAC<SHA256>.authenticate(stringToSign, withKey: Base64Decoder.decode(string: telesignClient.apiKey)))
-        //(.sha256, stringToSign.makeBytes(), key: Base64Encoder.decode(telesignClient.apiKey.makeBytes()))).makeString()
+        let encoder = Base64Encoder(encoding: .base64)
+        let decoder = Base64Decoder(encoding: .base64)
+        let signature = String(data: try encoder.encode(data: HMAC<SHA256>.authenticate(stringToSign, withKey: decoder.decode(string: apiKey))), encoding: .utf8) ?? ""
         
-        let authorization = "TSA \(telesignClient.clientId):\(signature)"
+        let authorization = "TSA \(clientId):\(signature)"
         
         let headers: HTTPHeaders = [
             HTTPHeaders.Name.authorization: authorization,
@@ -121,25 +152,5 @@ public class APIRequest<T: TelesignResponse>: TelesignRequest
         ]
         
         return headers
-    }
-    
-    // TODO: - Add multiple serializedresponses based on date formats until Telesign unifies their API.
-    @discardableResult
-    public func serializedResponse() throws -> T
-    {
-        let decoder = JSONDecoder()
-        
-        guard response.status.code <= 299 else
-        {
-            let status = try decoder.decode(Status.self, from: response.body.data ?? Data())
-            
-            throw TelesignError.connectionError(status.description ?? "Unknown Error", status.code ?? 500)
-        }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "E, d MMM yyyy HH:mm:ss z"
-        decoder.dateDecodingStrategy = .formatted(formatter)
-        
-        return try decoder.decode(T.self, from: response.body.data ?? Data())
     }
 }

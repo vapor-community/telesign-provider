@@ -6,29 +6,24 @@
 //
 
 import Foundation
+import XCTest
+@testable import Async
 @testable import Telesign
 @testable import HTTP
 
-class MockMessageAPIRequest<T: TelesignResponse>: APIRequest<T>
+class MockMessageAPIRequest<T: TelesignResponse>: TelesignRequest
 {
     var postCalled = false
     var getCalled = false
-    var serializedResponseCalled = false
     
-    override init(_ client: TelesignClient)
+    func post(path: String, body: [String : String]) throws -> Future<T>
     {
-        super.init(client)
-    }
-    
-    override func post(path: String, body: [String : String]) throws
-    {
-        // TODO: - Update time format back to correct type
         let postJsonData = """
         {
             "reference_id": "0123456789ABCDEF0123456789ABCDEF",
             "status": {
                     "code": 290,
-                    "updated_on": "Tue, 31 Jan 2017 13:36:07 GMT",
+                    "updated_on": "2017-02-01T00:33:34.860418Z",
                     "description": "Message in progress"
                     }
         }
@@ -36,20 +31,21 @@ class MockMessageAPIRequest<T: TelesignResponse>: APIRequest<T>
         
         let responseBody = HTTPBody(postJsonData)
         
-        response = HTTPResponse(body: responseBody)
+        let model = try serializedResponse(response: HTTPResponse(body: responseBody))
         
         postCalled = true
+        
+        return Future(model)
     }
     
-    override func get(path: String) throws
+    func get(path: String) throws -> Future<T>
     {
         let getJsonData = """
-                {
+        {
         "reference_id": "ABCDEF0123456789ABCDEF0123456789",
-        "submit_timestamp": "Tue, 31 Jan 2017 13:36:07 GMT",
         "status": {
            "code": 290,
-           "updated_on": "Tue, 31 Jan 2017 13:36:11 GMT",
+           "updated_on": "2017-02-01T00:33:34.860418Z",
            "description": "Message in progress"
            }
         }
@@ -57,28 +53,25 @@ class MockMessageAPIRequest<T: TelesignResponse>: APIRequest<T>
         
         let responseBody = HTTPBody(getJsonData)
         
-        response = HTTPResponse(body: responseBody)
+        let model = try serializedResponse(response: HTTPResponse(body: responseBody))
         
         getCalled = true
+        
+        return Future(model)
     }
 }
 
-class MockPhoneIDAPIRequest<T: TelesignResponse>: APIRequest<T>
+class MockPhoneIdAPIRequest<T: TelesignResponse>: TelesignRequest
 {
     var postCalled = false
     
-    override init(_ client: TelesignClient) {
-        super.init(client)
-    }
-    
-    override func post(path: String, body: [String : String]) throws
+    func post(path: String, body: [String: String]) throws -> Future<T>
     {
-        // TODO: - Update time format back to correct type
         let jsonData = """
         {
            "reference_id": "F0123456789ABCDEF0123456789ABCDE",
            "status": {
-              "updated_on": "Tue, 31 Jan 2017 13:36:11 GMT",
+              "updated_on": "2017-02-01T00:33:34.860418Z",
               "code": 300,
               "description": "Transaction successfully completed"
            },
@@ -138,28 +131,30 @@ class MockPhoneIDAPIRequest<T: TelesignResponse>: APIRequest<T>
         
         let responseBody = HTTPBody(jsonData)
         
-        response = HTTPResponse(body: responseBody)
+        let model = try serializedResponse(response: HTTPResponse(body: responseBody))
         
         postCalled = true
+        
+        return Future(model)
+    }
+    
+    func get(path: String) throws -> Future<T>
+    {
+        throw TelesignError.connectionError("The PhoneId API does not accept get requests!", 500)
     }
 }
 
-class MockScoreAPIRequest<T: TelesignResponse>: APIRequest<T>
+class MockScoreAPIRequest<T: TelesignResponse>: TelesignRequest
 {
     var postCalled = false
     
-    override init(_ client: TelesignClient) {
-        super.init(client)
-    }
-    
-    override func post(path: String, body: [String : String]) throws
+    func post(path: String, body: [String : String]) throws -> Future<T>
     {
-        // TODO: - Update time format back to correct type
         let jsonData = """
         {
            "reference_id": "B567DC5D1180011C8952823CF6B40773",
            "status": {
-              "updated_on": "Tue, 31 Jan 2017 13:36:11 GMT",
+              "updated_on": "2017-02-01T00:33:34.860418Z",
               "code": 300,
               "description": "Transaction successfully completed"
            },
@@ -223,10 +218,69 @@ class MockScoreAPIRequest<T: TelesignResponse>: APIRequest<T>
         
         let responseBody = HTTPBody(jsonData)
         
-        response = HTTPResponse(body: responseBody)
+        let model = try serializedResponse(response: HTTPResponse(body: responseBody))
         
         postCalled = true
+        
+        return Future(model)
+    }
+    
+    func get(path: String) throws -> Future<T>
+    {
+        throw TelesignError.connectionError("The Score API does not accept get requests!", 500)
     }
 }
 
-// TODO: - Implement Voice
+class MockVoiceAPIRequest<T: TelesignResponse>: TelesignRequest
+{
+    var postCalled = false
+    var getCalled = false
+    
+    func post(path: String, body: [String : String]) throws -> Future<T>
+    {
+        let postJsonData = """
+        {
+            "reference_id": "0123456789ABCDEF0123456789ABCDEF",
+            "status": {
+                    "code": 103,
+                    "updated_on": "2017-02-01T00:33:34.860418Z",
+                    "description": "Message in progress"
+            },
+            "voice": "f-en-GB"
+        }
+        """.data(using: .utf8)!
+        
+        let responseBody = HTTPBody(postJsonData)
+        
+        let model = try serializedResponse(response: HTTPResponse(body: responseBody))
+        
+        postCalled = true
+        
+        return Future(model)
+    }
+    
+    func get(path: String) throws -> Future<T>
+    {
+        let getJsonData = """
+        {
+        "reference_id": "ABCDEF0123456789ABCDEF0123456789",
+        "status": {
+           "code": 290,
+           "updated_on": "2017-02-01T00:33:34.860418Z",
+           "description": "Message in progress"
+           },
+        "voice": {
+            "user_input": "6"
+            }
+        }
+        """.data(using: .utf8)!
+        
+        let responseBody = HTTPBody(getJsonData)
+        
+        let model = try serializedResponse(response: HTTPResponse(body: responseBody))
+        
+        getCalled = true
+        
+        return Future(model)
+    }
+}

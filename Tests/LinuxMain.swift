@@ -4,6 +4,12 @@
 import XCTest
 @testable import TelesignTests
 
+extension APIRequestTests {
+static var allTests = [
+  ("testGenerateHeadersWorksProperly", testGenerateHeadersWorksProperly),
+]
+}
+
 extension MessagingTests {
 static var allTests = [
   ("testSendMessageReturnsAProperModel", testSendMessageReturnsAProperModel),
@@ -23,16 +29,18 @@ static var allTests = [
 ]
 }
 
-extension TelesignClientTests {
+extension VoiceTests {
 static var allTests = [
-  ("testRoutesAreProperlyInitialized", testRoutesAreProperlyInitialized),
+  ("testSenVoiceCallReturnsAProperModel", testSenVoiceCallReturnsAProperModel),
+  ("testGetCallStatusReturnsAProperModel", testGetCallStatusReturnsAProperModel),
 ]
 }
 
 
 XCTMain([
+  testCase(APIRequestTests.allTests),
   testCase(MessagingTests.allTests),
   testCase(PhoneIdTests.allTests),
   testCase(ScoreTests.allTests),
-  testCase(TelesignClientTests.allTests),
+  testCase(VoiceTests.allTests),
 ])

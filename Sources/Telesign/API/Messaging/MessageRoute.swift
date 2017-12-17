@@ -6,21 +6,24 @@
 //
 //
 
+import Async
+
 public protocol MessageRoute
 {
-    var request: APIRequest<TelesignMessageResponse> { get }
+    associatedtype MR: TelesignResponse
     
     @discardableResult
-    func send(message: String, to recepient: String, messageType: MessageType, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> MessageResponse
+    func send(message: String, to recepient: String, messageType: MessageType, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> Future<MR>
     
-    func getResultFor(reference: String) throws -> MessageResponse
+    func getResultFor(reference: String) throws -> Future<MR>
 }
 
-public struct Message: MessageRoute
+public struct Message<T>: MessageRoute where T: TelesignRequest
 {
-    public var request: APIRequest<TelesignMessageResponse>
+    public typealias MR = T.TR
+    private let request: T
     
-    init(request: APIRequest<TelesignMessageResponse>)
+    init(request: T)
     {
         self.request = request
     }
@@ -34,7 +37,7 @@ public struct Message: MessageRoute
         lifecycleEvent: AccountLifecycleEvent? = nil,
         senderId: String? = nil,
         originatingIp: String? = nil
-        ) throws -> MessageResponse
+        ) throws -> Future<MR>
     {
         
         var bodyData = [
@@ -63,15 +66,11 @@ public struct Message: MessageRoute
             bodyData["originating_ip"] = ip
         }
         
-        try request.post(path: "/v1/messaging", body: bodyData)
-        
-        return try request.serializedResponse()
+        return try request.post(path: "/v1/messaging", body: bodyData)
     }
     
-    public func getResultFor(reference: String) throws -> MessageResponse
+    public func getResultFor(reference: String) throws -> Future<MR>
     {
-        try request.get(path: "/v1/messaging/\(reference)")
-        
-        return try request.serializedResponse()
+       return try request.get(path: "/v1/messaging/\(reference)")
     }
 }

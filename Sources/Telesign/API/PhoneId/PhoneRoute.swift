@@ -6,23 +6,26 @@
 //
 //
 
+import Async
+
 public protocol PhoneRoute
 {
-    var request: APIRequest<TelesignPhoneIdResponse> { get }
+    associatedtype PIR: TelesignResponse
     
-    func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> PhoneIdResponse
+    func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<PIR>
 }
 
-public struct Phone: PhoneRoute
+public struct Phone<T>: PhoneRoute where T: TelesignRequest
 {
-    public var request: APIRequest<TelesignPhoneIdResponse>
+    public typealias PIR = T.TR
+    private var request: T
     
-    init(request: APIRequest<TelesignPhoneIdResponse>)
+    init(request: T)
     {
         self.request = request
     }
 
-    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent? = nil, originatingIp: String? = nil) throws -> PhoneIdResponse
+    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent? = nil, originatingIp: String? = nil) throws -> Future<PIR>
     {
         var bodyData: [String: String] = [:]
         
@@ -36,8 +39,6 @@ public struct Phone: PhoneRoute
             bodyData["originating_ip"] = ip
         }
         
-        try request.post(path: "/v1/phoneid/\(number)", body: bodyData)
-        
-        return try request.serializedResponse()
+        return try request.post(path: "/v1/phoneid/\(number)", body: bodyData)
     }
 }

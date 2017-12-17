@@ -6,18 +6,21 @@
 //
 //
 
+import Async
+
 public protocol ScoreRoute
 {
-    var request: APIRequest<TelesignScoreResponse> { get }
+    associatedtype SR: TelesignResponse
     
-    func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> ScoreResponse
+    func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> Future<SR>
 }
 
-public struct Score: ScoreRoute
+public struct Score<T>: ScoreRoute where T: TelesignRequest
 {
-    public var request: APIRequest<TelesignScoreResponse>
+    public typealias SR = T.TR
+    private var request: T
     
-    init(request: APIRequest<TelesignScoreResponse>)
+    init(request: T)
     {
         self.request = request
     }
@@ -29,7 +32,7 @@ public struct Score: ScoreRoute
         deviceId: String? = nil,
         accountId: String? = nil,
         emailAddress: String? = nil
-        ) throws -> ScoreResponse
+        ) throws -> Future<SR>
     {
         var bodyData = ["account_lifecycle_event": lifecycleEvent.rawValue]
         
@@ -53,8 +56,6 @@ public struct Score: ScoreRoute
             bodyData["email_address"] = email
         }
         
-        try request.post(path: "/v1/score/\(number)", body: bodyData)
-        
-        return try request.serializedResponse()
+        return try request.post(path: "/v1/score/\(number)", body: bodyData)
     }
 }

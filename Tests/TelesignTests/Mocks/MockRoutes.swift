@@ -1,5 +1,5 @@
 //
-//  MockMessageRoute.swift
+//  MockRoutes.swift
 //  TelesignTests
 //
 //  Created by Andrew Edwards on 12/2/17.
@@ -7,55 +7,78 @@
 
 import Foundation
 import Telesign
+import Async
 
-struct MockMessageRoute: MessageRoute
+struct MockMessageRoute<T>: MessageRoute where T: TelesignRequest
 {
-    var request: APIRequest<TelesignMessageResponse>
+    public typealias MR = T.TR
+    private let request: T
     
-    init(request: APIRequest<TelesignMessageResponse>)
+    init(request: T)
     {
         self.request = request
     }
     
-    func send(message: String, to recepient: String, messageType: MessageType, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> MessageResponse
+    func send(message: String, to recepient: String, messageType: MessageType, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> Future<MR>
     {
-        return try request.serializedResponse()
+        return try request.post(path: "", body: [:])
     }
     
-    func getResultFor(reference: String) throws -> MessageResponse
+    func getResultFor(reference: String) throws -> Future<MR>
     {
-        return try request.serializedResponse()
+        return try request.get(path: "")
     }
 }
 
-struct MockPhoneRoute: PhoneRoute
+struct MockPhoneRoute<T>: PhoneRoute where T: TelesignRequest
 {
-    var request: APIRequest<TelesignPhoneIdResponse>
+    public typealias PIR = T.TR
+    private let request: T
     
-    init(request: APIRequest<TelesignPhoneIdResponse>)
+    init(request: T)
     {
         self.request = request
     }
     
-    func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> PhoneIdResponse
+    func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<PIR>
     {
-        return try request.serializedResponse()
+        return try request.get(path: "")
     }
 }
 
-struct MockScoreRoute: ScoreRoute
+struct MockScoreRoute<T>: ScoreRoute where T: TelesignRequest
 {
-    var request: APIRequest<TelesignScoreResponse>
+    public typealias SR = T.TR
+    private let request: T
     
-    init(request: APIRequest<TelesignScoreResponse>)
+    init(request: T)
     {
         self.request = request
     }
     
-    func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> ScoreResponse
+    func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> Future<SR>
     {
-        return try request.serializedResponse()
+        return try request.get(path: "")
     }
 }
 
-// TODO: - Implement Voice
+struct MockVoiceRoute<T>: VoiceRoute where T: TelesignRequest
+{
+    public typealias VR = T.TR
+    private let request: T
+    
+    init(request: T)
+    {
+        self.request = request
+    }
+    
+    func send(message: String, to recepient: String, messageType: MessageType, voice: VoiceLanguage?, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<VR>
+    {
+        return try request.post(path: "", body: [:])
+    }
+    
+    func getResultFor(reference: String) throws -> Future<VR>
+    {
+        return try request.get(path: "")
+    }
+}
