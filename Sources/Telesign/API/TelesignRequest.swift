@@ -8,8 +8,6 @@
 
 import Foundation
 import Vapor
-import HTTP
-import Async
 import Crypto
 
 public protocol TelesignRequest
@@ -34,12 +32,11 @@ extension TelesignRequest
         
         guard response.status.code <= 299 else
         {
-            let status = try decoder.decode(Status.self, from: response.body.data ?? Data())
-            
+            let status = try decoder.decode(Status.self, from: response.body).requireCompleted()
             throw TelesignError.connectionError(status.description ?? "Unknown Error", status.code ?? 500)
         }
         
-        return try decoder.decode(TR.self, from: response.body.data ?? Data())
+        return try decoder.decode(TR.self, from: response.body).requireCompleted()
     }
     
     public func generateHeaders(path: String, method: HTTPMethod, body: [String : String]) throws -> HTTPHeaders
@@ -54,9 +51,9 @@ public class APIRequest<TR: TelesignResponse>: TelesignRequest
     
     private let apiKey: String
     private let clientId: String
-    private let httpClient: HTTPClient
+    private let httpClient: Client
     
-    init(apiKey: String, clientId: String, httpClient: HTTPClient)
+    init(apiKey: String, clientId: String, httpClient: Client)
     {
         self.apiKey = apiKey
         self.clientId = clientId
@@ -83,9 +80,9 @@ public class APIRequest<TR: TelesignResponse>: TelesignRequest
         
         let request = HTTPRequest(method: .post, uri: URI(stringLiteral: uri + path), headers: headers, body: body)
         
-        return httpClient.send(request: request).map { (response) -> TR in
+        return try httpClient.respond(to: Request(http: request, using: httpClient.container)).map(to: TR.self) { (response) -> TR in
             
-            return try self.serializedResponse(response: response)
+            return try self.serializedResponse(response: response.http)
         }
     }
     
@@ -95,10 +92,10 @@ public class APIRequest<TR: TelesignResponse>: TelesignRequest
         
         let request = HTTPRequest(method: .get, uri: URI(stringLiteral: uri + path), headers: headers)
         
-        return httpClient.send(request: request).map { (response) -> TR in
+        return try httpClient.respond(to: Request(http: request, using: httpClient.container)).map(to: TR.self, { (response) -> TR in
             
-            return try self.serializedResponse(response: response)
-        }
+            return try self.serializedResponse(response: response.http)
+        })
     }
     
     public func generateHeaders(path: String, method: HTTPMethod, body: [String: String]) throws -> HTTPHeaders
