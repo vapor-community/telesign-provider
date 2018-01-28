@@ -10,7 +10,7 @@ import Async
 
 public protocol MessageRoute
 {
-    associatedtype MR: TelesignResponse
+    associatedtype MR: MessageResponse
     
     @discardableResult
     func send(message: String, to recepient: String, messageType: MessageType, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> Future<MR>
@@ -18,12 +18,11 @@ public protocol MessageRoute
     func getResultFor(reference: String) throws -> Future<MR>
 }
 
-public struct Message<T>: MessageRoute where T: TelesignRequest
+public struct Message: MessageRoute
 {
-    public typealias MR = T.TR
-    private let request: T
+    private let request: TelesignRequest
     
-    init(request: T)
+    init(request: TelesignRequest)
     {
         self.request = request
     }
@@ -37,7 +36,7 @@ public struct Message<T>: MessageRoute where T: TelesignRequest
         lifecycleEvent: AccountLifecycleEvent? = nil,
         senderId: String? = nil,
         originatingIp: String? = nil
-        ) throws -> Future<MR>
+        ) throws -> Future<TelesignMessageResponse>
     {
         
         var bodyData = [
@@ -69,7 +68,7 @@ public struct Message<T>: MessageRoute where T: TelesignRequest
         return try request.post(path: "/v1/messaging", body: bodyData)
     }
     
-    public func getResultFor(reference: String) throws -> Future<MR>
+    public func getResultFor(reference: String) throws -> Future<TelesignMessageResponse>
     {
        return try request.get(path: "/v1/messaging/\(reference)")
     }

@@ -32,32 +32,21 @@ public final class TelesignProvider: Provider
 
 public struct TelesignClient: Service
 {
-    public typealias MessageAPIRequest = APIRequest<TelesignMessageResponse>
-    public typealias PhoneAPIRequest = APIRequest<TelesignPhoneIdResponse>
-    public typealias ScoreAPIRequest = APIRequest<TelesignScoreResponse>
-    public typealias VoiceAPIRequest = APIRequest<TelesignVoiceResponse>
-    
-    public let messaging: Message<MessageAPIRequest>
-    public let phoneid: Phone<PhoneAPIRequest>
-    public let score: Score<ScoreAPIRequest>
-    public let voice: Voice<VoiceAPIRequest>
+    public let messaging: Message
+    public let phoneid: Phone
+    public let score: Score
+    public let voice: Voice
     
     init(config: TelesignConfig, client: Client)
     {
-        let messageAPIRequest = MessageAPIRequest(apiKey: config.apiKey, clientId: config.clientId, httpClient: client)
+        let apiRequest = APIRequest(apiKey: config.apiKey, clientId: config.clientId, httpClient: client)
         
-        messaging = Message<MessageAPIRequest>(request: messageAPIRequest)
+        messaging = Message(request: apiRequest)
         
-        let phoneAPIRequest = PhoneAPIRequest(apiKey: config.apiKey, clientId: config.clientId, httpClient: client)
+        phoneid = Phone(request: apiRequest)
         
-        phoneid = Phone<PhoneAPIRequest>(request: phoneAPIRequest)
+        score = Score(request: apiRequest)
         
-        let scoreAPIRequest = ScoreAPIRequest(apiKey: config.apiKey, clientId: config.clientId, httpClient: client)
-        
-        score = Score<ScoreAPIRequest>(request: scoreAPIRequest)
-        
-        let voiceAPIRequest = VoiceAPIRequest(apiKey: config.apiKey, clientId: config.clientId, httpClient: client)
-        
-        voice = Voice<VoiceAPIRequest>(request: voiceAPIRequest)
+        voice = Voice(request: apiRequest)
     }
 }

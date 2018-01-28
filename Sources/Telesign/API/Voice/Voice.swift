@@ -10,7 +10,7 @@ import Async
 
 public protocol VoiceRoute
 {
-    associatedtype VR: TelesignResponse
+    associatedtype VR: VoiceResponse
     
     @discardableResult
     func send(message: String, to recepient: String, messageType: MessageType, voice: VoiceLanguage?, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<VR>
@@ -18,12 +18,11 @@ public protocol VoiceRoute
     func getResultFor(reference: String) throws -> Future<VR>
 }
 
-public struct Voice<T>: VoiceRoute where T: TelesignRequest
+public struct Voice: VoiceRoute
 {
-    public typealias VR = T.TR
-    private var request: T
+    private var request: TelesignRequest
     
-    init(request: T)
+    init(request: TelesignRequest)
     {
         self.request = request
     }
@@ -37,7 +36,7 @@ public struct Voice<T>: VoiceRoute where T: TelesignRequest
         callbackURL: String? = nil,
         lifecycleEvent: AccountLifecycleEvent? = nil,
         originatingIp: String? = nil
-        ) throws -> Future<VR>
+        ) throws -> Future<TelesignVoiceResponse>
     {
         var bodyData = [
             "message":message,
@@ -67,7 +66,7 @@ public struct Voice<T>: VoiceRoute where T: TelesignRequest
         return try request.post(path: "/v1/voice", body: bodyData)
     }
     
-    public func getResultFor(reference: String) throws -> Future<VR>
+    public func getResultFor(reference: String) throws -> Future<TelesignVoiceResponse>
     {
         return try request.get(path: "/v1/voice/\(reference)")
     }

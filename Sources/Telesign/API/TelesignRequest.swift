@@ -12,17 +12,30 @@ import Crypto
 
 public protocol TelesignRequest
 {
-    associatedtype TR: TelesignResponse
-    
-    func post(path: String, body: [String: String]) throws -> Future<TR>
-    func get(path: String) throws -> Future<TR>
+    func post<TR: TelesignResponse>(path: String, body: [String: String]) throws -> Future<TR>
+    func get<TR: TelesignResponse>(path: String) throws -> Future<TR>
     func generateHeaders(path: String, method: HTTPMethod, body: [String: String]) throws -> HTTPHeaders
-    func serializedResponse(response: HTTPResponse) throws -> TR
+    func serializedResponse<TR: TelesignResponse>(response: HTTPResponse) throws -> TR
 }
 
 extension TelesignRequest
 {
-    public func serializedResponse(response: HTTPResponse) throws -> TR
+    public func post<TR: TelesignResponse>(path: String, body: [String: String]) throws -> Future<TR>
+    {
+        return try post(path: path, body: body)
+    }
+    
+    public func get<TR: TelesignResponse>(path: String) throws -> Future<TR>
+    {
+        return try get(path: path)
+    }
+    
+    public func generateHeaders(path: String, method: HTTPMethod, body: [String : String]) throws -> HTTPHeaders
+    {
+        return try generateHeaders(path: path, method: method, body: body)
+    }
+    
+    public func serializedResponse<TR: TelesignResponse>(response: HTTPResponse) throws -> TR
     {
         let decoder = JSONDecoder()
         
@@ -38,14 +51,9 @@ extension TelesignRequest
         
         return try decoder.decode(TR.self, from: response.body).requireCompleted()
     }
-    
-    public func generateHeaders(path: String, method: HTTPMethod, body: [String : String]) throws -> HTTPHeaders
-    {
-        return [:]
-    }
 }
 
-public class APIRequest<TR: TelesignResponse>: TelesignRequest
+public class APIRequest: TelesignRequest
 {
     private let uri = "https://rest-api.telesign.com"
     
@@ -60,7 +68,7 @@ public class APIRequest<TR: TelesignResponse>: TelesignRequest
         self.httpClient = httpClient
     }
     
-    public func post(path: String, body: [String: String]) throws -> Future<TR>
+    public func post<TR: TelesignResponse>(path: String, body: [String: String]) throws -> Future<TR>
     {
         let queryParams = body.map { URLQueryItem(name: $0.key, value: $0.value) }
         
@@ -86,7 +94,7 @@ public class APIRequest<TR: TelesignResponse>: TelesignRequest
         }
     }
     
-    public func get(path: String) throws -> Future<TR>
+    public func get<TR: TelesignResponse>(path: String) throws -> Future<TR>
     {
         let headers = try generateHeaders(path: path, method: .get, body: [:])
         

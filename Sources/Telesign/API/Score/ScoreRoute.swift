@@ -10,17 +10,16 @@ import Async
 
 public protocol ScoreRoute
 {
-    associatedtype SR: TelesignResponse
+    associatedtype SR: ScoreResponse
     
     func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> Future<SR>
 }
 
-public struct Score<T>: ScoreRoute where T: TelesignRequest
+public struct Score: ScoreRoute
 {
-    public typealias SR = T.TR
-    private var request: T
+    private var request: TelesignRequest
     
-    init(request: T)
+    init(request: TelesignRequest)
     {
         self.request = request
     }
@@ -32,7 +31,7 @@ public struct Score<T>: ScoreRoute where T: TelesignRequest
         deviceId: String? = nil,
         accountId: String? = nil,
         emailAddress: String? = nil
-        ) throws -> Future<SR>
+        ) throws -> Future<TelesignScoreResponse>
     {
         var bodyData = ["account_lifecycle_event": lifecycleEvent.rawValue]
         

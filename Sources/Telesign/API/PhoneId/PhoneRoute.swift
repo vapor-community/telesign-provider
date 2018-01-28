@@ -10,22 +10,21 @@ import Async
 
 public protocol PhoneRoute
 {
-    associatedtype PIR: TelesignResponse
+    associatedtype PIR: PhoneIdResponse
     
     func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<PIR>
 }
 
-public struct Phone<T>: PhoneRoute where T: TelesignRequest
+public struct Phone: PhoneRoute
 {
-    public typealias PIR = T.TR
-    private var request: T
+    private var request: TelesignRequest
     
-    init(request: T)
+    init(request: TelesignRequest)
     {
         self.request = request
     }
 
-    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent? = nil, originatingIp: String? = nil) throws -> Future<PIR>
+    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent? = nil, originatingIp: String? = nil) throws -> Future<TelesignPhoneIdResponse>
     {
         var bodyData: [String: String] = [:]
         
