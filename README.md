@@ -34,7 +34,7 @@ Making calls to the api is straight forward.
 ~~~~swift
 let futureMessageResult = try telesignClient.messaging.send(message: "Hello Vapor", to: "1234567", messageType: .ARN)
 
-futureMessageResult({ (charge) in
+futureMessageResult({ (message) in
 // do something with message object...
 }).catch({ (error) in
 print(error)
