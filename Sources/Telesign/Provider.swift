@@ -8,7 +8,7 @@
 
 import Vapor
 
-public struct TelesignConfig
+public struct TelesignConfig: Service
 {
     let apiKey: String
     let clientId: String
