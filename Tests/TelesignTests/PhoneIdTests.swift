@@ -13,20 +13,17 @@ import XCTest
 
 class PhoneIdTests: XCTestCase
 {
-    var phoneIdRoute: Phone<MockPhoneIdAPIRequest<TelesignPhoneIdResponse>>!
-    
-    override func setUp()
-    {
-        let mockRequest = MockPhoneIdAPIRequest<TelesignPhoneIdResponse>()
-            
-        phoneIdRoute = Phone(request: mockRequest)
-    }
-    
     func testGetPhoneIdReturnsAProperModel() throws
     {
-        let response = try phoneIdRoute.getId(for: "")
+        let mockRequest = MockAPIRequest()
         
-        response.do { (phoneResponse) in
+        let responseBody = HTTPBody(jsonData)
+        
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignPhoneIdResponse
+        
+        let future = Future(model)
+
+        future.do { (phoneResponse) in
             
             XCTAssertNotNil(phoneResponse, "Response response was nil")
             
@@ -124,4 +121,66 @@ class PhoneIdTests: XCTestCase
                 XCTFail(error.localizedDescription)
         }
     }
+    
+    let jsonData = """
+        {
+           "reference_id": "F0123456789ABCDEF0123456789ABCDE",
+           "status": {
+              "updated_on": "2017-02-01T00:33:34.860418Z",
+              "code": 300,
+              "description": "Transaction successfully completed"
+           },
+           "location": {
+              "city": "Los Angeles",
+              "state": "CA",
+              "zip": "90066",
+              "metro_code": "4480",
+              "county": "Los Angeles County",
+              "country": {
+                 "name": "United States",
+                 "iso2": "US",
+                 "iso3": "USA"
+              },
+              "coordinates": {
+                 "latitude": 33.99791,
+                 "longitude": -118.42302
+              },
+              "time_zone": {
+                 "name": "America/Los_Angeles",
+                 "utc_offset_min": "-8",
+                 "utc_offset_max": "-8"
+              }
+           },
+           "numbering": {
+              "original": {
+                 "complete_phone_number": "15555551234",
+                 "country_code": "1",
+                 "phone_number": "5555551234"
+              },
+              "cleansing": {
+                 "call": {
+                    "country_code": "1",
+                    "phone_number": "5555551234",
+                    "cleansed_code": 100,
+                    "min_length": 10,
+                    "max_length": 10
+                 },
+                 "sms": {
+                    "country_code": "1",
+                    "phone_number": "5555551234",
+                    "cleansed_code": 100,
+                    "min_length": 10,
+                    "max_length": 10
+                 }
+              }
+           },
+           "phone_type": {
+              "code": "1",
+              "description": "FIXED_LINE"
+           },
+           "carrier": {
+              "name": "Verizon"
+           }
+        }
+        """.data(using: .utf8)!
 }

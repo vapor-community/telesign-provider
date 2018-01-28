@@ -13,20 +13,17 @@ import XCTest
 
 class VoiceTests: XCTestCase
 {
-    var voiceRoute: Voice<MockVoiceAPIRequest<TelesignVoiceResponse>>!
-    
-    override func setUp()
-    {
-        let mockRequest = MockVoiceAPIRequest<TelesignVoiceResponse>()
-        
-        voiceRoute = Voice(request: mockRequest)
-    }
-    
+    let mockRequest = MockAPIRequest()
+
     func testSenVoiceCallReturnsAProperModel() throws
     {
-        let response = try voiceRoute.send(message: "", to: "", messageType: .ARN)
+        let responseBody = HTTPBody(postJsonData)
         
-        response.do { (voiceResponse) in
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
+        
+        let future = Future(model)
+
+        future.do { (voiceResponse) in
             
             XCTAssertNotNil(voiceResponse, "Message response was nil")
             
@@ -58,10 +55,14 @@ class VoiceTests: XCTestCase
     }
     
     func testGetCallStatusReturnsAProperModel() throws
-    {
-        let response = try voiceRoute.getResultFor(reference: "")
+    {        
+        let responseBody = HTTPBody(getJsonData)
         
-        response.do { (voiceResponse) in
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
+        
+        let future = Future(model)
+
+        future.do { (voiceResponse) in
             
             XCTAssertNotNil(voiceResponse, "Message response was nil")
             
@@ -91,4 +92,31 @@ class VoiceTests: XCTestCase
                 XCTFail(error.localizedDescription)
         }
     }
+    
+    let postJsonData = """
+        {
+            "reference_id": "0123456789ABCDEF0123456789ABCDEF",
+            "status": {
+                    "code": 103,
+                    "updated_on": "2017-02-01T00:33:34.860418Z",
+                    "description": "Message in progress"
+            },
+            "voice": "f-en-GB"
+        }
+        """.data(using: .utf8)!
+    
+    let getJsonData = """
+        {
+        "reference_id": "ABCDEF0123456789ABCDEF0123456789",
+        "status": {
+           "code": 290,
+           "updated_on": "2017-02-01T00:33:34.860418Z",
+           "description": "Message in progress"
+           },
+        "voice": {
+            "user_input": "6"
+            }
+        }
+        """.data(using: .utf8)!
+
 }

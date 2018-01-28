@@ -13,20 +13,17 @@ import XCTest
 
 class ScoreTests: XCTestCase
 {
-    var scoreRoute: Score<MockScoreAPIRequest<TelesignScoreResponse>>!
-    
-    override func setUp()
-    {
-        let mockRequest = MockScoreAPIRequest<TelesignScoreResponse>()
-        
-        scoreRoute = Score(request: mockRequest)
-    }
-    
     func testGetPhoneReturnsAProperModel() throws
     {
-        let response = try scoreRoute.get(for: "", lifecycleEvent: .create)
+        let mockRequest = MockAPIRequest()
         
-        response.do { (scoreResponse) in
+        let responseBody = HTTPBody(jsonData)
+        
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignScoreResponse
+        
+        let future = Future(model)
+        
+        future.do { (scoreResponse) in
             
             XCTAssertNotNil(scoreResponse, "Response response was nil")
             
@@ -132,6 +129,72 @@ class ScoreTests: XCTestCase
                 XCTFail(error.localizedDescription)
         }
     }
+    
+    let jsonData = """
+        {
+           "reference_id": "B567DC5D1180011C8952823CF6B40773",
+           "status": {
+              "updated_on": "2017-02-01T00:33:34.860418Z",
+              "code": 300,
+              "description": "Transaction successfully completed"
+           },
+           "numbering": {
+              "original": {
+                 "complete_phone_number": "15555551212",
+                 "country_code": "1",
+                 "phone_number": "5555551212"
+              },
+             "cleansing": {
+               "call": {
+                 "country_code": "1",
+                 "phone_number": "5555551212",
+                 "cleansed_code": 105,
+                 "min_length": 10,
+                 "max_length": 10
+               },
+               "sms": {
+                 "country_code": "1",
+                 "phone_number": "5555551212",
+                 "cleansed_code": 105,
+                 "min_length": 10,
+                 "max_length": 10
+               }
+             }
+           },
+          "phone_type": {
+            "code": "8",
+            "description": "INVALID"
+          },
+          "location": {
+            "city": "Countrywide",
+            "state": null,
+            "zip": null,
+            "metro_code": null,
+            "county": null,
+            "country": {
+              "name": "United Kingdom",
+              "iso2": "GB",
+              "iso3": "GBR"
+            },
+            "coordinates": {
+              "latitude": null,
+              "longitude": null
+            },
+            "time_zone": {
+              "name": null,
+              "utc_offset_min": "0",
+              "utc_offset_max": "0"}
+          },
+          "carrier": {
+            "name": "Telefonica UK Limited"
+          },
+          "risk": {
+            "level": "high",
+            "recommendation": "block",
+            "score": 959
+          }
+        }
+        """.data(using: .utf8)!
 }
 
 

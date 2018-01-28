@@ -13,20 +13,17 @@ import XCTest
 
 class MessagingTests: XCTestCase
 {
-    var messageRoute: Message<MockMessageAPIRequest<TelesignMessageResponse>>!
-
-    override func setUp()
-    {
-        let mockRequest = MockMessageAPIRequest<TelesignMessageResponse>()
-            
-        messageRoute = Message(request: mockRequest)
-    }
+    let mockRequest = MockAPIRequest()
     
     func testSendMessageReturnsAProperModel() throws
     {
-        let response = try messageRoute.send(message: "", to: "", messageType: .ARN)
+        let responseBody = HTTPBody(postJsonData)
         
-        response.do { (messageResponse) in
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
+        
+        let future = Future(model)
+
+        future.do { (messageResponse) in
             
             XCTAssertNotNil(messageResponse, "Message response was nil")
             
@@ -42,14 +39,18 @@ class MessagingTests: XCTestCase
             
             }.catch { (error) in
                 XCTFail(error.localizedDescription)
-            }
+        }
     }
     
     func testGetMessageStatusReturnsAProperModel() throws
     {
-        let response = try messageRoute.getResultFor(reference: "")
+        let responseBody = HTTPBody(postJsonData)
         
-        response.do { (messageResponse) in
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
+        
+        let future = Future(model)
+
+        future.do { (messageResponse) in
             
             XCTAssertNotNil(messageResponse, "Message response was nil")
             
@@ -67,4 +68,26 @@ class MessagingTests: XCTestCase
                 XCTFail(error.localizedDescription)
         }
     }
+    
+    let postJsonData = """
+        {
+            "reference_id": "0123456789ABCDEF0123456789ABCDEF",
+            "status": {
+                    "code": 290,
+                    "updated_on": "2017-02-01T00:33:34.860418Z",
+                    "description": "Message in progress"
+                    }
+        }
+        """.data(using: .utf8)!
+
+    let getJsonData = """
+        {
+        "reference_id": "ABCDEF0123456789ABCDEF0123456789",
+        "status": {
+           "code": 290,
+           "updated_on": "2017-02-01T00:33:34.860418Z",
+           "description": "Message in progress"
+           }
+        }
+        """.data(using: .utf8)!
 }
