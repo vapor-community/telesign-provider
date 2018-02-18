@@ -11,9 +11,8 @@
 ## Integrating with your Vapor project
 Start by adding the repo to your `Package.swift`
 
-For Swift 4
 ~~~~swift
-.package(url: "https://github.com/vapor-community/telesign", .branch("beta"))
+.package(url: "https://github.com/vapor-community/telesign-provider", .branch("beta"))
 ~~~~
 
 Register the config and the provider to your Application
