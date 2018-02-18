@@ -19,11 +19,9 @@ class MessagingTests: XCTestCase
     {
         let responseBody = HTTPBody(postJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignMessageResponse>
         
-        let future = Future(model)
-
-        future.do { (messageResponse) in
+        model.do { (messageResponse) in
             
             XCTAssertNotNil(messageResponse, "Message response was nil")
             
@@ -46,11 +44,9 @@ class MessagingTests: XCTestCase
     {
         let responseBody = HTTPBody(postJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignMessageResponse>
         
-        let future = Future(model)
-
-        future.do { (messageResponse) in
+        model.do { (messageResponse) in
             
             XCTAssertNotNil(messageResponse, "Message response was nil")
             

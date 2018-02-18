@@ -19,11 +19,9 @@ class ScoreTests: XCTestCase
         
         let responseBody = HTTPBody(jsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignScoreResponse
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignScoreResponse>
         
-        let future = Future(model)
-        
-        future.do { (scoreResponse) in
+        model.do { (scoreResponse) in
             
             XCTAssertNotNil(scoreResponse, "Response response was nil")
             
@@ -105,13 +103,13 @@ class ScoreTests: XCTestCase
             
             XCTAssertNil(scoreResponse.location?.coordinates?.longitude, "Location coordinates longitude is not nil")
             
-            XCTAssertNotNil(scoreResponse.location?.timezone, "Location timezone is nil")
+            XCTAssertNotNil(scoreResponse.location?.timeZone, "Location timezone is nil")
             
-            XCTAssertNil(scoreResponse.location?.timezone?.name, "Location timezone name is not nil")
+            XCTAssertNil(scoreResponse.location?.timeZone?.name, "Location timezone name is not nil")
             
-            XCTAssertNotNil(scoreResponse.location?.timezone?.utcOffsetMin, "Location timezone offsetmin is nil")
+            XCTAssertNotNil(scoreResponse.location?.timeZone?.utcOffsetMin, "Location timezone offsetmin is nil")
             
-            XCTAssertNotNil(scoreResponse.location?.timezone?.utcOffsetMax, "Location timezone offsetmax is nil")
+            XCTAssertNotNil(scoreResponse.location?.timeZone?.utcOffsetMax, "Location timezone offsetmax is nil")
             
             XCTAssertNotNil(scoreResponse.carrier, "Carrier is nil")
             
@@ -196,5 +194,3 @@ class ScoreTests: XCTestCase
         }
         """.data(using: .utf8)!
 }
-
-

@@ -19,11 +19,9 @@ class PhoneIdTests: XCTestCase
         
         let responseBody = HTTPBody(jsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignPhoneIdResponse
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignPhoneIdResponse>
         
-        let future = Future(model)
-
-        future.do { (phoneResponse) in
+        model.do { (phoneResponse) in
             
             XCTAssertNotNil(phoneResponse, "Response response was nil")
             
@@ -63,13 +61,13 @@ class PhoneIdTests: XCTestCase
             
             XCTAssertNotNil(phoneResponse.location?.coordinates?.longitude, "Location coordinates longitude is nil")
             
-            XCTAssertNotNil(phoneResponse.location?.timezone, "Location timezone is nil")
+            XCTAssertNotNil(phoneResponse.location?.timeZone, "Location timezone is nil")
             
-            XCTAssertNotNil(phoneResponse.location?.timezone?.name, "Location timezone name is nil")
+            XCTAssertNotNil(phoneResponse.location?.timeZone?.name, "Location timezone name is nil")
             
-            XCTAssertNotNil(phoneResponse.location?.timezone?.utcOffsetMin, "Location timezone offsetmin is nil")
+            XCTAssertNotNil(phoneResponse.location?.timeZone?.utcOffsetMin, "Location timezone offsetmin is nil")
             
-            XCTAssertNotNil(phoneResponse.location?.timezone?.utcOffsetMax, "Location timezone offsetmax is nil")
+            XCTAssertNotNil(phoneResponse.location?.timeZone?.utcOffsetMax, "Location timezone offsetmax is nil")
             
             XCTAssertNotNil(phoneResponse.numbering, "Numbering is nil")
             

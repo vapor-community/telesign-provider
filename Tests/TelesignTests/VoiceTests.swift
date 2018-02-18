@@ -19,11 +19,9 @@ class VoiceTests: XCTestCase
     {
         let responseBody = HTTPBody(postJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignVoiceResponse>
         
-        let future = Future(model)
-
-        future.do { (voiceResponse) in
+        model.do { (voiceResponse) in
             
             XCTAssertNotNil(voiceResponse, "Message response was nil")
             
@@ -58,11 +56,9 @@ class VoiceTests: XCTestCase
     {        
         let responseBody = HTTPBody(getJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as TelesignVoiceResponse
-        
-        let future = Future(model)
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignVoiceResponse>
 
-        future.do { (voiceResponse) in
+        model.do { (voiceResponse) in
             
             XCTAssertNotNil(voiceResponse, "Message response was nil")
             
@@ -83,7 +79,7 @@ class VoiceTests: XCTestCase
             case .voice(let voice)?:
                 XCTFail("Expected a dictionary got back a single value \(voice.rawValue)")
             case .userInput(let input)?:
-                XCTAssertTrue(input["user_input"] == "6", "User input was not 6")
+                XCTAssertTrue(input["userInput"] == "6", "User input was not 6 It was: \(input)")
             default:
                 XCTFail("No voice value present")
             }
@@ -118,5 +114,4 @@ class VoiceTests: XCTestCase
             }
         }
         """.data(using: .utf8)!
-
 }
