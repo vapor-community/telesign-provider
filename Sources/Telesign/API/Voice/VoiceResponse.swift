@@ -18,11 +18,4 @@ public struct TelesignVoiceResponse: TelesignResponse, VoiceResponse
     public var referenceId: String?
     public var voice: VoiceLanguageOrUserInputResponse?
     public var status: Status?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case referenceId = "reference_id"
-        case voice
-        case status
-    }
 }

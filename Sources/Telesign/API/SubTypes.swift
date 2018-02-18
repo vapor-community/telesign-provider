@@ -13,13 +13,6 @@ public struct Status: TelesignResponse
     var description: String?
     var code: Int?
     var updatedOn: Date?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case code
-        case updatedOn = "updated_on"
-        case description
-    }
 }
 
 // MARK: Call
@@ -30,15 +23,6 @@ public struct Call: TelesignResponse
     var cleansedCode: Int?
     var minLength: Int?
     var maxLength: Int?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case countryCode = "country_code"
-        case phoneNumber = "phone_number"
-        case cleansedCode = "cleansed_code"
-        case minLength = "min_length"
-        case maxLength = "max_length"
-    }
 }
 
 // MARK: Cleansing
@@ -72,20 +56,8 @@ public struct Location: TelesignResponse
     var zip: String?
     var metroCode: String?
     var country: Country?
-    var timezone: Timezone?
+    var timeZone: Timezone?
     var coordinates: Coordinates?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case city
-        case county
-        case state
-        case zip
-        case metroCode = "metro_code"
-        case country
-        case timezone = "time_zone"
-        case coordinates
-    }
 }
 
 // MARK: Numbering
@@ -101,13 +73,6 @@ public struct Original: TelesignResponse
     var completePhoneNumber: String?
     var countryCode: String?
     var phoneNumber: String?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case completePhoneNumber = "complete_phone_number"
-        case countryCode = "country_code"
-        case phoneNumber = "phone_number"
-    }
 }
 
 // MARK: Risk
@@ -126,15 +91,6 @@ public struct SMS: TelesignResponse
     var cleansedCode: Int?
     var minLength: Int?
     var maxLength: Int?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case countryCode = "country_code"
-        case phoneNumber = "phone_number"
-        case cleansedCode = "cleansed_code"
-        case minLength = "min_length"
-        case maxLength = "max_length"
-    }
 }
 
 // MARK: Timezone
@@ -143,13 +99,6 @@ public struct Timezone: TelesignResponse
     var name: String?
     var utcOffsetMin: String?
     var utcOffsetMax: String?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case name
-        case utcOffsetMin = "utc_offset_min"
-        case utcOffsetMax = "utc_offset_max"
-    }
 }
 
 // MARK: Carrier

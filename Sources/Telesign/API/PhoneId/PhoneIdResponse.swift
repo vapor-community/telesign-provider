@@ -24,14 +24,4 @@ public struct TelesignPhoneIdResponse: TelesignResponse, PhoneIdResponse
     public var numbering: Numbering?
     public var carrier: Carrier?
     public var status: Status?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case referenceId = "reference_id"
-        case phoneType = "phone_type"
-        case location
-        case numbering
-        case carrier
-        case status
-    }
 }

@@ -26,15 +26,4 @@ public struct TelesignScoreResponse: TelesignResponse, ScoreResponse
     public var risk: Risk?
     public var carrier: Carrier?
     public var status: Status?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case referenceId = "reference_id"
-        case phoneType = "phone_type"
-        case location
-        case numbering
-        case risk
-        case carrier
-        case status
-    }
 }

@@ -37,7 +37,7 @@ public struct TelesignClient: Service
     public let score: Score
     public let voice: Voice
     
-    init(config: TelesignConfig, client: Client)
+    internal init(config: TelesignConfig, client: Client)
     {
         let apiRequest = APIRequest(apiKey: config.apiKey, clientId: config.clientId, httpClient: client)
         

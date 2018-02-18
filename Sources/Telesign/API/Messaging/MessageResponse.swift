@@ -6,8 +6,6 @@
 //
 //
 
-import Foundation
-
 public protocol MessageResponse
 {
     var referenceId: String? { get }
@@ -18,10 +16,4 @@ public struct TelesignMessageResponse: TelesignResponse, MessageResponse
 {
     public var referenceId: String?
     public var status: Status?
-    
-    enum CodingKeys: String, CodingKey
-    {
-        case referenceId = "reference_id"
-        case status
-    }
 }
