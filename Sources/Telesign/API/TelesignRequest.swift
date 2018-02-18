@@ -15,7 +15,7 @@ public protocol TelesignRequest
     func post<TR: TelesignResponse>(path: String, body: [String: String]) throws -> Future<TR>
     func get<TR: TelesignResponse>(path: String) throws -> Future<TR>
     func generateHeaders(path: String, method: HTTPMethod, body: [String: String]) throws -> HTTPHeaders
-    func serializedResponse<TR: TelesignResponse>(response: HTTPResponse) throws -> TR
+    func serializedResponse<TR: TelesignResponse>(response: HTTPResponse) throws -> Future<TR>
 }
 
 extension TelesignRequest
@@ -35,13 +35,14 @@ extension TelesignRequest
         return try generateHeaders(path: path, method: method, body: body)
     }
     
-    public func serializedResponse<TR: TelesignResponse>(response: HTTPResponse) throws -> TR
+    public func serializedResponse<TR: TelesignResponse>(response: HTTPResponse) throws -> Future<TR>
     {
         let decoder = JSONDecoder()
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
         decoder.dateDecodingStrategy = .formatted(formatter)
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         
         guard response.status.code <= 299 else
         {
@@ -49,7 +50,7 @@ extension TelesignRequest
             throw TelesignError.connectionError(status.description ?? "Unknown Error", status.code ?? 500)
         }
         
-        return try decoder.decode(TR.self, from: response.body).requireCompleted()
+        return try decoder.decode(TR.self, from: response.body)
     }
 }
 
@@ -88,7 +89,7 @@ public class APIRequest: TelesignRequest
         
         let request = HTTPRequest(method: .post, uri: URI(stringLiteral: uri + path), headers: headers, body: body)
         
-        return try httpClient.respond(to: Request(http: request, using: httpClient.container)).map(to: TR.self) { (response) -> TR in
+        return try httpClient.respond(to: Request(http: request, using: httpClient.container)).flatMap(to: TR.self) { (response) -> Future<TR> in
             
             return try self.serializedResponse(response: response.http)
         }
@@ -100,7 +101,7 @@ public class APIRequest: TelesignRequest
         
         let request = HTTPRequest(method: .get, uri: URI(stringLiteral: uri + path), headers: headers)
         
-        return try httpClient.respond(to: Request(http: request, using: httpClient.container)).map(to: TR.self, { (response) -> TR in
+        return try httpClient.respond(to: Request(http: request, using: httpClient.container)).flatMap(to: TR.self, { (response) -> Future<TR> in
             
             return try self.serializedResponse(response: response.http)
         })
@@ -150,12 +151,11 @@ public class APIRequest: TelesignRequest
         let authorization = "TSA \(clientId):\(signature)"
         
         let headers: HTTPHeaders = [
-            HTTPHeaders.Name.authorization: authorization,
-            HTTPHeaders.Name.contentType: contentType,
-            HTTPHeaders.Name("x-ts-date"): "\(date)",
-            HTTPHeaders.Name("x-ts-auth-method"): authMethod
+            HTTPHeaders.Key.authorization: authorization,
+            HTTPHeaders.Key.contentType: contentType,
+            HTTPHeaders.Key("x-ts-date"): "\(date)",
+            HTTPHeaders.Key("x-ts-auth-method"): authMethod
         ]
-        
         return headers
     }
 }
