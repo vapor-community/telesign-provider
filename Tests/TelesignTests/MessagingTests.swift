@@ -6,111 +6,81 @@
 //
 //
 
-
 import XCTest
-
 @testable import Telesign
 @testable import Vapor
 
-class MessagingTests: XCTestCase
-{
-    var drop: Droplet?
-    var referenceId: String = ""
+class MessagingTests: XCTestCase {
+    let mockRequest = MockAPIRequest()
+    let headers: HTTPHeaders = ["Content-Type": MediaType.json.description]
     
-    override func setUp()
-    {
-        do
-        {
-            drop = try self.makeDroplet()
+    func testSendMessageReturnsAProperModel() throws {
+        let responseBody = HTTPBody(string: postJsonData)
+        
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(headers: headers, body: responseBody), worker: EmbeddedEventLoop()) as Future<TelesignMessageResponse>
+        
+        model.do { (messageResponse) in
             
-            referenceId = try drop?.telesign?.messaging.send(message: "Telesign Vapor",
-                                                             to: "16143838792",
-                                                             messageType: MessageType.ARN,
-                                                             callbackUrl: nil,
-                                                             lifecycleEvent: nil,
-                                                             senderId: nil,
-                                                             originatingIp: nil).referenceId ?? ""
-        }
-        catch let error as TelesignError
-        {
-            switch error
-            {
-            case .malformedEncodedBody:
-                XCTFail(error.localizedDescription)
-            case .missingAPIKey:
-                XCTFail(error.localizedDescription)
-            case .missingClientId:
-                XCTFail(error.localizedDescription)
-            case .missingConfig:
-                XCTFail(error.localizedDescription)
-            case .connectionError(_):
-                XCTFail(error.localizedDescription)
-            }
-        }
-        catch
-        {
-            fatalError("Setup failed: \(error.localizedDescription)")
+            XCTAssertNotNil(messageResponse, "Message response was nil")
+            
+            XCTAssertNotNil(messageResponse.referenceId, "Reference Id is nil")
+            
+            XCTAssertNotNil(messageResponse.status, "Status is nil")
+            
+            XCTAssertNotNil(messageResponse.status.code, "Status code is nil")
+            
+            XCTAssertNotNil(messageResponse.status.updatedOn, "Status updated on is nil")
+            
+            XCTAssertNotNil(messageResponse.status.description, "Status description is nil")
+            
+            }.catch { (error) in
+                XCTFail("\(error)")
         }
     }
     
-    override func tearDown() {
-        drop = nil
-        referenceId = ""
-    }
-    
-    func testGetMessageSatus() throws
-    {
-        do
-        {
-            let response = try drop?.telesign?.messaging.getResultFor(reference: referenceId)
+    func testGetMessageStatusReturnsAProperModel() throws {
+        let responseBody = HTTPBody(string: postJsonData)
+        
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(headers: headers, body: responseBody), worker: EmbeddedEventLoop()) as Future<TelesignMessageResponse>
+        
+        model.do { (messageResponse) in
             
-            XCTAssertNotNil(response)
-        }
-        catch let error as TelesignError
-        {
-            switch error
-            {
-            case .malformedEncodedBody:
-                XCTFail(error.localizedDescription)
-            case .missingAPIKey:
-                XCTFail(error.localizedDescription)
-            case .missingClientId:
-                XCTFail(error.localizedDescription)
-            case .missingConfig:
-                XCTFail(error.localizedDescription)
-            case .connectionError(_):
-                XCTFail(error.localizedDescription)
-            }
+            XCTAssertNotNil(messageResponse, "Message response was nil")
+            
+            XCTAssertNotNil(messageResponse.referenceId, "Reference Id is nil")
+                        
+            XCTAssertNotNil(messageResponse.status, "Status is nil")
+            
+            XCTAssertNotNil(messageResponse.status.code, "Status code is nil")
+            
+            XCTAssertNotNil(messageResponse.status.updatedOn, "Status updated on is nil")
+            
+            XCTAssertNotNil(messageResponse.status.description, "Status description is nil")
+            
+            }.catch { (error) in
+                XCTFail("\(error)")
         }
     }
     
-    func testMessageNotRejectedAFter10Seconds() throws
-    {
-        do
+    let postJsonData = """
         {
-            sleep(10)
-            
-            let response = try drop?.telesign?.messaging.getResultFor(reference: referenceId)
-            
-            XCTAssertNotNil(response)
-            
-            XCTAssertLessThan(response?.code ?? 500, 500)
+            "reference_id": "0123456789ABCDEF0123456789ABCDEF",
+            "status": {
+                    "code": 290,
+                    "updated_on": "2017-02-01T00:33:34.860418Z",
+                    "description": "Message in progress"
+                    }
         }
-        catch let error as TelesignError
+        """
+
+    let getJsonData = """
         {
-            switch error
-            {
-            case .malformedEncodedBody:
-                XCTFail(error.localizedDescription)
-            case .missingAPIKey:
-                XCTFail(error.localizedDescription)
-            case .missingClientId:
-                XCTFail(error.localizedDescription)
-            case .missingConfig:
-                XCTFail(error.localizedDescription)
-            case .connectionError(_):
-                XCTFail(error.localizedDescription)
-            }
+        "reference_id": "ABCDEF0123456789ABCDEF0123456789",
+        "status": {
+           "code": 290,
+           "updated_on": "2017-02-01T00:33:34.860418Z",
+           "description": "Message in progress"
+           }
         }
-    }
+        """
 }

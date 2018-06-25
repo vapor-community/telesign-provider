@@ -4,34 +4,41 @@
 import XCTest
 @testable import TelesignTests
 
+extension APIRequestTests {
+static var allTests = [
+  ("testGenerateHeadersWorksProperly", testGenerateHeadersWorksProperly),
+]
+}
+
 extension MessagingTests {
 static var allTests = [
-  ("testGetMessageSatus", testGetMessageSatus),
-  ("testMessageNotRejectedAFter10Seconds", testMessageNotRejectedAFter10Seconds),
+  ("testSendMessageReturnsAProperModel", testSendMessageReturnsAProperModel),
+  ("testGetMessageStatusReturnsAProperModel", testGetMessageStatusReturnsAProperModel),
 ]
 }
 
 extension PhoneIdTests {
 static var allTests = [
-  ("testPhoneIdIsAccurate", testPhoneIdIsAccurate),
+  ("testGetPhoneIdReturnsAProperModel", testGetPhoneIdReturnsAProperModel),
 ]
 }
 
 extension ScoreTests {
 static var allTests = [
-  ("testPhoneIdIsAccurate", testPhoneIdIsAccurate),
+  ("testGetPhoneReturnsAProperModel", testGetPhoneReturnsAProperModel),
 ]
 }
 
 extension VoiceTests {
 static var allTests = [
-  ("testGetMessageSatus", testGetMessageSatus),
-  ("testCallSuccessfullyPlaced", testCallSuccessfullyPlaced),
+  ("testSenVoiceCallReturnsAProperModel", testSenVoiceCallReturnsAProperModel),
+  ("testGetCallStatusReturnsAProperModel", testGetCallStatusReturnsAProperModel),
 ]
 }
 
 
 XCTMain([
+  testCase(APIRequestTests.allTests),
   testCase(MessagingTests.allTests),
   testCase(PhoneIdTests.allTests),
   testCase(ScoreTests.allTests),

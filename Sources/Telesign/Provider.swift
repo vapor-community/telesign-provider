@@ -8,71 +8,47 @@
 
 import Vapor
 
+public struct TelesignConfig: Service {
+    let apiKey: String
+    let customerId: String
+    
+    public init(apiKey: String, customerId: String) {
+        self.apiKey = apiKey
+        self.customerId = customerId
+    }
+}
 
-private var _telesign: TelesignClient?
-
-extension Droplet
-{
-    /*
-     Enables use of the `drop.telesign?` convenience methods.
-     */
-    public var telesign: TelesignClient?
-    {
-        get {
-            return _telesign
-        }
-        set {
-            _telesign = newValue
+public final class TelesignProvider: Provider {
+    public static let repositoryName = "telesign-provider"
+    
+    public init() {}
+    
+    public func boot(_ container: Container) throws {}
+    
+    public func didBoot(_ container: Container) throws -> EventLoopFuture<Void> {
+        return .done(on: container)
+    }
+    
+    public func register(_ services: inout Services) throws {
+        services.register { (container) -> TelesignClient in
+            let httpClient = try container.make(Client.self)
+            let config = try container.make(TelesignConfig.self)
+            return TelesignClient(config: config, client: httpClient)
         }
     }
 }
 
-public final class Provider: Vapor.Provider
-{
-    public static let repositoryName = "vapor-telesign"
+public struct TelesignClient: Service {
+    public let messaging: Message
+    public let phoneid: Phone
+    public let score: Score
+    public let voice: Voice
     
-    public let apiKey: String
-    public let clientId: String
-    public let telesign: TelesignClient
-    
-    public convenience init(config: Config) throws
-    {
-        guard let telesignConfig = config["telesign"]?.object else {
-            throw TelesignError.missingConfig
-        }
-        guard let apiKey = telesignConfig["apiKey"]?.string else {
-            throw TelesignError.missingAPIKey
-        }
-        
-        guard let clientId = telesignConfig["clientId"]?.string else {
-            throw TelesignError.missingClientId
-        }
-        
-        try self.init(apiKey: apiKey, clientId: clientId)
-    }
-    
-    public init(apiKey: String, clientId: String) throws
-    {
-        self.apiKey = apiKey
-        self.clientId = clientId
-        self.telesign = TelesignClient(apiKey: apiKey, clientId: clientId)
-    }
-    
-    public func boot(_ drop: Droplet)
-    {
-        self.telesign.initialize()
-        drop.telesign = self.telesign
-    }
-    
-    public func boot(_ config: Configs.Config) throws {
-        
-    }
-    
-    public func afterInit(_ drop: Droplet) {
-        
-    }
-    
-    public func beforeRun(_ drop: Droplet) {
-        
+    internal init(config: TelesignConfig, client: Client) {
+        let apiRequest = APIRequest(apiKey: config.apiKey, customerId: config.customerId, httpClient: client)
+        messaging = Message(request: apiRequest)
+        phoneid = Phone(request: apiRequest)
+        score = Score(request: apiRequest)
+        voice = Voice(request: apiRequest)
     }
 }
