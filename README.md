@@ -12,12 +12,12 @@
 Start by adding the repo to your `Package.swift`
 
 ~~~~swift
-.package(url: "https://github.com/vapor-community/telesign-provider", .branch("beta"))
+.package(url: "https://github.com/vapor-community/telesign-provider", from: "2.0.0")
 ~~~~
 
 Register the config and the provider to your Application
 ~~~~swift
-let config = TelesignConfig(apiKey: "myapikey", clientId: "myclientid")
+let config = TelesignConfig(apiKey: "myapikey", customerId: "mycustomerId")
 
 services.register(config)
 

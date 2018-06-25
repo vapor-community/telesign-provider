@@ -9,7 +9,11 @@
 import Vapor
 
 public struct TelesignError: TelesignModel, Error, Debuggable {
-    // TODO: - Finish implementing.
-    public var identifier: String
-    public var reason: String
+    public var identifier: String {
+        return "\(self.status.code)-\(self.status.description)"
+    }
+    public var reason: String{
+        return self.status.description
+    }
+    public var status: Status
 }

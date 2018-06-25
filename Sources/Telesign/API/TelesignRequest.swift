@@ -49,7 +49,7 @@ extension TelesignRequest {
         
         let stringToSign = (stringToSignArray.joined(separator: "").removingPercentEncoding ?? "").convertToData()
         
-        let signature = try HMAC(algorithm: .sha256).authenticate(stringToSign, key: apiKey.convertToData().convert(to: String.self)).base64EncodedString()
+        let signature = try HMAC(algorithm: .sha256).authenticate(stringToSign, key: Data(base64Encoded: apiKey, options: Data.Base64DecodingOptions(rawValue: 0)) ?? Data()).base64EncodedString()
         
         let authorization = "TSA \(customerId):\(signature)"
         
