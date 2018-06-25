@@ -7,19 +7,17 @@
 //
 
 import XCTest
-
 @testable import Telesign
 @testable import Vapor
 
-class VoiceTests: XCTestCase
-{
+class VoiceTests: XCTestCase {
     let mockRequest = MockAPIRequest()
+    let headers: HTTPHeaders = ["Content-Type": MediaType.json.description]
 
-    func testSenVoiceCallReturnsAProperModel() throws
-    {
-        let responseBody = HTTPBody(postJsonData)
+    func testSenVoiceCallReturnsAProperModel() throws {
+        let responseBody = HTTPBody(string: postJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignVoiceResponse>
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(headers: headers, body: responseBody), worker: EmbeddedEventLoop()) as Future<TelesignVoiceResponse>
         
         model.do { (voiceResponse) in
             
@@ -29,34 +27,30 @@ class VoiceTests: XCTestCase
             
             XCTAssertNotNil(voiceResponse.status, "Status is nil")
             
-            XCTAssertNotNil(voiceResponse.status?.code, "Status code is nil")
+            XCTAssertNotNil(voiceResponse.status.code, "Status code is nil")
             
-            XCTAssertNotNil(voiceResponse.status?.updatedOn, "Status updated on is nil")
+            XCTAssertNotNil(voiceResponse.status.updatedOn, "Status updated on is nil")
             
-            XCTAssertNotNil(voiceResponse.status?.description, "Status description is nil")
+            XCTAssertNotNil(voiceResponse.status.description, "Status description is nil")
             
             XCTAssertNotNil(voiceResponse.voice, "Voice is nil")
             
-            switch voiceResponse.voice
-            {
-            case .voice(let voice)?:
+            switch voiceResponse.voice {
+            case .voice(let voice):
                     XCTAssertTrue(voice == .englishUK, "Incorrect Voice format")
-            case .userInput(let input)?:
+            case .userInputAndCallerId(let input):
                     XCTFail("Expected a single language got back a dictionary \(input)")
-            default:
-                XCTFail("No voice value present")
             }
             
             }.catch { (error) in
-                XCTFail(error.localizedDescription)
+                XCTFail("\(error)")
         }
     }
     
-    func testGetCallStatusReturnsAProperModel() throws
-    {        
-        let responseBody = HTTPBody(getJsonData)
+    func testGetCallStatusReturnsAProperModel() throws {
+        let responseBody = HTTPBody(string: getJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignVoiceResponse>
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(headers: headers, body: responseBody), worker: EmbeddedEventLoop()) as Future<TelesignVoiceResponse>
 
         model.do { (voiceResponse) in
             
@@ -66,26 +60,24 @@ class VoiceTests: XCTestCase
             
             XCTAssertNotNil(voiceResponse.status, "Status is nil")
             
-            XCTAssertNotNil(voiceResponse.status?.code, "Status code is nil")
+            XCTAssertNotNil(voiceResponse.status.code, "Status code is nil")
             
-            XCTAssertNotNil(voiceResponse.status?.updatedOn, "Status updated on is nil")
+            XCTAssertNotNil(voiceResponse.status.updatedOn, "Status updated on is nil")
             
-            XCTAssertNotNil(voiceResponse.status?.description, "Status description is nil")
+            XCTAssertNotNil(voiceResponse.status.description, "Status description is nil")
             
             XCTAssertNotNil(voiceResponse.voice, "Voice is nil")
 
-            switch voiceResponse.voice
-            {
-            case .voice(let voice)?:
+            switch voiceResponse.voice {
+            case .voice(let voice):
                 XCTFail("Expected a dictionary got back a single value \(voice.rawValue)")
-            case .userInput(let input)?:
-                XCTAssertTrue(input["userInput"] == "6", "User input was not 6 It was: \(input)")
-            default:
-                XCTFail("No voice value present")
+            case .userInputAndCallerId(let input):
+                XCTAssertTrue(input["user_input"] == "6", "User input was not 6 It was: \(input)")
+                XCTAssertTrue(input["caller_id"] == "1234567890", "Caller Id was not 1234567890 It was: \(input)")
             }
             
             }.catch { (error) in
-                XCTFail(error.localizedDescription)
+                XCTFail("\(error)")
         }
     }
     
@@ -99,7 +91,7 @@ class VoiceTests: XCTestCase
             },
             "voice": "f-en-GB"
         }
-        """.data(using: .utf8)!
+        """
     
     let getJsonData = """
         {
@@ -110,8 +102,9 @@ class VoiceTests: XCTestCase
            "description": "Message in progress"
            },
         "voice": {
-            "user_input": "6"
+            "user_input": "6",
+            "caller_id": "1234567890"
             }
         }
-        """.data(using: .utf8)!
+        """
 }

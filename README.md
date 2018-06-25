@@ -31,14 +31,7 @@ telesignClient = try app.make(TelesignClient.self)
 And you are all set. Interacting with the API is quite easy and adopts the `Future` syntax used in Vapor 3.
 Making calls to the api is straight forward.
 ~~~~swift
-let futureMessageResult = try telesignClient.messaging.send(message: "Hello Vapor", to: "1234567", messageType: .ARN)
-
-futureMessageResult({ (message) in
-// do something with message object...
-}).catch({ (error) in
-print(error)
-})
-
+try telesignClient.messaging.send(message: "Hello Vapor", to: "1234567", messageType: .ARN)
 ~~~~
 
 ## Supports the full API
@@ -47,4 +40,4 @@ print(error)
 * [x] Score
 * [x] Voice
 
-[telesign_home]: http://telesign.com "Telesign"
+[telesign_home]: https://www.telesign.com "Telesign"

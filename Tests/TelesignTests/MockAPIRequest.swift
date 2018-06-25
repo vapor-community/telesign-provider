@@ -7,4 +7,7 @@
 
 @testable import Telesign
 
-class MockAPIRequest: TelesignRequest {}
+struct MockAPIRequest: TelesignRequest {
+    var apiKey: String = ""
+    var clientId: String = ""
+}

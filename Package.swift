@@ -7,7 +7,7 @@ let package = Package(
         .library(name: "Telesign", targets: ["Telesign"])
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0-beta"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "3.0.0"),
     ],
     targets: [
         .target(name: "Telesign", dependencies: ["Vapor"]),

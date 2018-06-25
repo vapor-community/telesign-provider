@@ -8,19 +8,14 @@
 
 import Async
 
-public protocol ScoreRoute
-{
-    associatedtype SR: ScoreResponse
-    
-    func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> Future<SR>
+public protocol ScoreRoute {
+    func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> Future<TelesignScoreResponse>
 }
 
-public struct Score: ScoreRoute
-{
+public struct Score: ScoreRoute {
     private var request: TelesignRequest
     
-    init(request: TelesignRequest)
-    {
+    init(request: TelesignRequest) {
         self.request = request
     }
     
@@ -31,30 +26,25 @@ public struct Score: ScoreRoute
         deviceId: String? = nil,
         accountId: String? = nil,
         emailAddress: String? = nil
-        ) throws -> Future<TelesignScoreResponse>
-    {
+        ) throws -> Future<TelesignScoreResponse> {
         var bodyData = ["account_lifecycle_event": lifecycleEvent.rawValue]
         
-        if let ip = originatingIp
-        {
+        if let ip = originatingIp {
             bodyData["originating_ip"] = ip
         }
 
-        if let device = deviceId
-        {
+        if let device = deviceId {
             bodyData["device_id"] = device
         }
 
-        if let account = accountId
-        {
+        if let account = accountId {
             bodyData["account_id"] = account
         }
 
-        if let email = emailAddress
-        {
+        if let email = emailAddress {
             bodyData["email_address"] = email
         }
         
-        return try request.post(path: "/v1/score/\(number)", body: bodyData)
+        return try request.send(method: .POST, path: "/v1/score/\(number)", body: bodyData)
     }
 }

@@ -6,24 +6,29 @@
 //
 //
 
-public enum MessageType: String
-{
+public enum MessageType: String {
+    /// One time passwords.
     case OTP
+    /// Alerts, reminders, and notifications.
     case ARN
+    /// Marketing traffic.
     case MKT
 }
 
-public enum AccountLifecycleEvent: String
-{
+public enum AccountLifecycleEvent: String {
+    /// For the creation of a new account.
     case create
+    /// For when an end user signs in to their account.
     case signIn = "sign-in"
+    /// For when an end user completes a transaction within their account.
     case transact
+    /// For when an update is performed, such as an update of account information or similar.
     case update
+    /// For when an account is deleted.
     case delete
 }
 
-public enum VoiceLanguage: String, Codable
-{
+public enum VoiceLanguage: String, Codable {
     case chineseHongKong = "f-zh-HK"
     case chineseMandarin = "f-zh-CN"
     case chineseTaiwan = "f-zh-TW"
@@ -51,12 +56,11 @@ public enum VoiceLanguage: String, Codable
     case swedish = "f-sv-SE"
 }
 
-public enum VoiceLanguageOrUserInputResponse: Codable
-{
+public enum VoiceLanguageOrUserInputResponse: Codable {
     public func encode(to encoder: Encoder) throws {}
     
     case voice(VoiceLanguage)
-    case userInput([String: String])
+    case userInputAndCallerId([String: String])
     
     public init(from decoder: Decoder) throws {
         let single = try decoder.singleValueContainer()
@@ -67,7 +71,7 @@ public enum VoiceLanguageOrUserInputResponse: Codable
         }
         
         if let dict = try? single.decode([String: String].self) {
-            self = .userInput(dict)
+            self = .userInputAndCallerId(dict)
             return
         }
 

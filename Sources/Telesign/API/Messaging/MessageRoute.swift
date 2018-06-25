@@ -8,22 +8,16 @@
 
 import Async
 
-public protocol MessageRoute
-{
-    associatedtype MR: MessageResponse
-    
+public protocol MessageRoute {
     @discardableResult
-    func send(message: String, to recepient: String, messageType: MessageType, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> Future<MR>
-    
-    func getResultFor(reference: String) throws -> Future<MR>
+    func send(message: String, to recepient: String, messageType: MessageType, callbackURL: String?, lifecycleEvent: AccountLifecycleEvent?, senderId: String?, originatingIp: String?) throws -> Future<TelesignMessageResponse>    
+    func getResultFor(reference: String) throws -> Future<TelesignMessageResponse>
 }
 
-public struct Message: MessageRoute
-{
+public struct Message: MessageRoute {
     private let request: TelesignRequest
     
-    init(request: TelesignRequest)
-    {
+    init(request: TelesignRequest) {
         self.request = request
     }
     
@@ -36,8 +30,7 @@ public struct Message: MessageRoute
         lifecycleEvent: AccountLifecycleEvent? = nil,
         senderId: String? = nil,
         originatingIp: String? = nil
-        ) throws -> Future<TelesignMessageResponse>
-    {
+        ) throws -> Future<TelesignMessageResponse> {
         
         var bodyData = [
             "message": message,
@@ -45,31 +38,26 @@ public struct Message: MessageRoute
             "message_type": messageType.rawValue
         ]
         
-        if let callbackurl = callbackURL
-        {
+        if let callbackurl = callbackURL {
             bodyData["callback_url"] = callbackurl
         }
         
-        if let ale = lifecycleEvent
-        {
+        if let ale = lifecycleEvent {
             bodyData["account_lifecycle_event"] = ale.rawValue
         }
         
-        if let senderId = senderId
-        {
+        if let senderId = senderId {
             bodyData["sender_id"] = senderId
         }
         
-        if let ip = originatingIp
-        {
+        if let ip = originatingIp {
             bodyData["originating_ip"] = ip
         }
         
-        return try request.post(path: "/v1/messaging", body: bodyData)
+        return try request.send(method: .POST, path: "/v1/messaging", body: bodyData)
     }
     
-    public func getResultFor(reference: String) throws -> Future<TelesignMessageResponse>
-    {
-       return try request.get(path: "/v1/messaging/\(reference)")
+    public func getResultFor(reference: String) throws -> Future<TelesignMessageResponse> {
+        return try request.send(method: .GET, path: "/v1/messaging/\(reference)")
     }
 }

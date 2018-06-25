@@ -7,19 +7,17 @@
 //
 
 import XCTest
-
 @testable import Telesign
 @testable import Vapor
 
-class MessagingTests: XCTestCase
-{
+class MessagingTests: XCTestCase {
     let mockRequest = MockAPIRequest()
+    let headers: HTTPHeaders = ["Content-Type": MediaType.json.description]
     
-    func testSendMessageReturnsAProperModel() throws
-    {
-        let responseBody = HTTPBody(postJsonData)
+    func testSendMessageReturnsAProperModel() throws {
+        let responseBody = HTTPBody(string: postJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignMessageResponse>
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(headers: headers, body: responseBody), worker: EmbeddedEventLoop()) as Future<TelesignMessageResponse>
         
         model.do { (messageResponse) in
             
@@ -29,22 +27,21 @@ class MessagingTests: XCTestCase
             
             XCTAssertNotNil(messageResponse.status, "Status is nil")
             
-            XCTAssertNotNil(messageResponse.status?.code, "Status code is nil")
+            XCTAssertNotNil(messageResponse.status.code, "Status code is nil")
             
-            XCTAssertNotNil(messageResponse.status?.updatedOn, "Status updated on is nil")
+            XCTAssertNotNil(messageResponse.status.updatedOn, "Status updated on is nil")
             
-            XCTAssertNotNil(messageResponse.status?.description, "Status description is nil")
+            XCTAssertNotNil(messageResponse.status.description, "Status description is nil")
             
             }.catch { (error) in
-                XCTFail(error.localizedDescription)
+                XCTFail("\(error)")
         }
     }
     
-    func testGetMessageStatusReturnsAProperModel() throws
-    {
-        let responseBody = HTTPBody(postJsonData)
+    func testGetMessageStatusReturnsAProperModel() throws {
+        let responseBody = HTTPBody(string: postJsonData)
         
-        let model = try mockRequest.serializedResponse(response: HTTPResponse(body: responseBody)) as Future<TelesignMessageResponse>
+        let model = try mockRequest.serializedResponse(response: HTTPResponse(headers: headers, body: responseBody), worker: EmbeddedEventLoop()) as Future<TelesignMessageResponse>
         
         model.do { (messageResponse) in
             
@@ -54,14 +51,14 @@ class MessagingTests: XCTestCase
                         
             XCTAssertNotNil(messageResponse.status, "Status is nil")
             
-            XCTAssertNotNil(messageResponse.status?.code, "Status code is nil")
+            XCTAssertNotNil(messageResponse.status.code, "Status code is nil")
             
-            XCTAssertNotNil(messageResponse.status?.updatedOn, "Status updated on is nil")
+            XCTAssertNotNil(messageResponse.status.updatedOn, "Status updated on is nil")
             
-            XCTAssertNotNil(messageResponse.status?.description, "Status description is nil")
+            XCTAssertNotNil(messageResponse.status.description, "Status description is nil")
             
             }.catch { (error) in
-                XCTFail(error.localizedDescription)
+                XCTFail("\(error)")
         }
     }
     
@@ -74,7 +71,7 @@ class MessagingTests: XCTestCase
                     "description": "Message in progress"
                     }
         }
-        """.data(using: .utf8)!
+        """
 
     let getJsonData = """
         {
@@ -85,5 +82,5 @@ class MessagingTests: XCTestCase
            "description": "Message in progress"
            }
         }
-        """.data(using: .utf8)!
+        """
 }
