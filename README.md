@@ -2,7 +2,7 @@
 
 ![Swift](http://img.shields.io/badge/swift-4.1-brightgreen.svg)
 ![Vapor](http://img.shields.io/badge/vapor-3.0-brightgreen.svg)
-[![CircleCI](https://circleci.com/gh/vapor-community/telesign-provider/tree/beta.svg?style=svg)](https://circleci.com/gh/vapor-community/telesign-provider/tree/beta)
+[![CircleCI](https://circleci.com/gh/vapor-community/telesign-provider/tree/master.svg?style=svg)](https://circleci.com/gh/vapor-community/telesign-provider/tree/master)
 
 
 ## What's Telesign?
