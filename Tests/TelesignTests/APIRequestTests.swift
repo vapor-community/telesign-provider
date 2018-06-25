@@ -14,7 +14,7 @@ class APIRequestTests: XCTestCase {
         
         var api = MockAPIRequest()
         api.apiKey = "rSXsJDSK2hWi1CtzX/RbPtuTnZ7dybjFVS7gcJKkhqXa4RRQ5gkbP3TGNUwiqpu0cXxG5oblzu19X51//aIRLw=="
-        api.clientId = "Hello"
+        api.customerId = "Hello"
         
         let headers = try api.generateHeaders(path: "/v1/messaging", method: .POST, body: ["message": "Your reset code is 610190. This code will expire in 10 minutes.",
                                                                                            "phone_number": "1234567890",

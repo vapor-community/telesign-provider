@@ -9,5 +9,5 @@
 
 struct MockAPIRequest: TelesignRequest {
     var apiKey: String = ""
-    var clientId: String = ""
+    var customerId: String = ""
 }

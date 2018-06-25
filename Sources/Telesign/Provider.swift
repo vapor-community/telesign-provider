@@ -10,16 +10,18 @@ import Vapor
 
 public struct TelesignConfig: Service {
     let apiKey: String
-    let clientId: String
+    let customerId: String
     
-    public init(apiKey: String, clientId: String) {
+    public init(apiKey: String, customerId: String) {
         self.apiKey = apiKey
-        self.clientId = clientId
+        self.customerId = customerId
     }
 }
 
 public final class TelesignProvider: Provider {
     public static let repositoryName = "telesign-provider"
+    
+    public init() {}
     
     public func boot(_ container: Container) throws {}
     
@@ -43,7 +45,7 @@ public struct TelesignClient: Service {
     public let voice: Voice
     
     internal init(config: TelesignConfig, client: Client) {
-        let apiRequest = APIRequest(apiKey: config.apiKey, clientId: config.clientId, httpClient: client)
+        let apiRequest = APIRequest(apiKey: config.apiKey, customerId: config.customerId, httpClient: client)
         messaging = Message(request: apiRequest)
         phoneid = Phone(request: apiRequest)
         score = Score(request: apiRequest)

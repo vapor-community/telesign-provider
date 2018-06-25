@@ -12,7 +12,7 @@ import Crypto
 
 public protocol TelesignRequest {
     var apiKey: String { get set}
-    var clientId: String { get set}
+    var customerId: String { get set}
     func send<TM: TelesignModel>(method: HTTPMethod, path: String, body: [String: String]?) throws -> Future<TM>
     func generateHeaders(path: String, method: HTTPMethod, body: [String: String]?) throws -> HTTPHeaders
     func serializedResponse<TM: TelesignModel>(response: HTTPResponse, worker: EventLoop) throws -> Future<TM>
@@ -51,7 +51,7 @@ extension TelesignRequest {
         
         let signature = try HMAC(algorithm: .sha256).authenticate(stringToSign, key: apiKey.convertToData().convert(to: String.self)).base64EncodedString()
         
-        let authorization = "TSA \(clientId):\(signature)"
+        let authorization = "TSA \(customerId):\(signature)"
         
         let headers: HTTPHeaders = [
             HTTPHeaderName.authorization.description: authorization,
@@ -82,12 +82,12 @@ public class APIRequest: TelesignRequest {
     private let uri = "https://rest-api.telesign.com"
     
     public var apiKey: String
-    public var clientId: String
+    public var customerId: String
     let httpClient: Client
     
-    init(apiKey: String, clientId: String, httpClient: Client) {
+    init(apiKey: String, customerId: String, httpClient: Client) {
         self.apiKey = apiKey
-        self.clientId = clientId
+        self.customerId = customerId
         self.httpClient = httpClient
     }
     
