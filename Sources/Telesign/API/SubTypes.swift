@@ -14,7 +14,7 @@ public struct Status: TelesignModel {
     /// A text description of the status code.
     var description: String
     /// This is a timestamp showing when your transaction status was updated last.
-    var updatedOn: Date
+    var updatedOn: Date?
     
     public enum CodingKeys: String, CodingKey {
         case code
