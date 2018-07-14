@@ -12,6 +12,22 @@ public protocol ScoreRoute {
     func get(for number: String, lifecycleEvent: AccountLifecycleEvent, originatingIp: String?, deviceId: String?, accountId: String?, emailAddress: String?) throws -> Future<TelesignScoreResponse>
 }
 
+extension ScoreRoute {
+    public func get(for number: String,
+                    lifecycleEvent: AccountLifecycleEvent,
+                    originatingIp: String? = nil,
+                    deviceId: String? = nil,
+                    accountId: String? = nil,
+                    emailAddress: String? = nil) throws -> Future<TelesignScoreResponse> {
+        return try get(for: number,
+                       lifecycleEvent: lifecycleEvent,
+                       originatingIp: originatingIp,
+                       deviceId: deviceId,
+                       accountId: accountId,
+                       emailAddress: emailAddress)
+    }
+}
+
 public struct Score: ScoreRoute {
     private var request: TelesignRequest
     
@@ -19,14 +35,12 @@ public struct Score: ScoreRoute {
         self.request = request
     }
     
-    public func get(
-        for number: String,
-        lifecycleEvent: AccountLifecycleEvent,
-        originatingIp: String? = nil,
-        deviceId: String? = nil,
-        accountId: String? = nil,
-        emailAddress: String? = nil
-        ) throws -> Future<TelesignScoreResponse> {
+    public func get(for number: String,
+                    lifecycleEvent: AccountLifecycleEvent,
+                    originatingIp: String?,
+                    deviceId: String?,
+                    accountId: String?,
+                    emailAddress: String?) throws -> Future<TelesignScoreResponse> {
         var bodyData = ["account_lifecycle_event": lifecycleEvent.rawValue]
         
         if let ip = originatingIp {

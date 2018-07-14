@@ -8,8 +8,14 @@
 
 import Async
 
-public protocol PhoneRoute{
+public protocol PhoneRoute {
     func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<TelesignPhoneIdResponse>
+}
+
+extension PhoneRoute {
+    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent? = nil, originatingIp: String? = nil) throws -> Future<TelesignPhoneIdResponse> {
+        return try getId(for: number, lifecycleEvent: lifecycleEvent, originatingIp: originatingIp)
+    }
 }
 
 public struct Phone: PhoneRoute {
@@ -19,7 +25,7 @@ public struct Phone: PhoneRoute {
         self.request = request
     }
 
-    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent? = nil, originatingIp: String? = nil) throws -> Future<TelesignPhoneIdResponse> {
+    public func getId(for number: String, lifecycleEvent: AccountLifecycleEvent?, originatingIp: String?) throws -> Future<TelesignPhoneIdResponse> {
         var bodyData: [String: String] = [:]
         
         if let ale = lifecycleEvent {

@@ -14,6 +14,28 @@ public protocol MessageRoute {
     func getResultFor(reference: String) throws -> Future<TelesignMessageResponse>
 }
 
+extension MessageRoute {
+    public func send(message: String,
+                     to recepient: String,
+                     messageType: MessageType,
+                     callbackURL: String? = nil,
+                     lifecycleEvent: AccountLifecycleEvent? = nil,
+                     senderId: String? = nil,
+                     originatingIp: String? = nil) throws -> Future<TelesignMessageResponse> {
+        return try send(message: message,
+                        to: recepient,
+                        messageType: messageType,
+                        callbackURL: callbackURL,
+                        lifecycleEvent: lifecycleEvent,
+                        senderId: senderId,
+                        originatingIp: originatingIp)
+        }
+    
+    public func getResultFor(reference: String) throws -> Future<TelesignMessageResponse> {
+        return try getResultFor(reference: reference)
+    }
+}
+
 public struct Message: MessageRoute {
     private let request: TelesignRequest
     
@@ -22,15 +44,13 @@ public struct Message: MessageRoute {
     }
     
     @discardableResult
-    public func send(
-        message: String,
-        to recepient: String,
-        messageType: MessageType,
-        callbackURL: String? = nil,
-        lifecycleEvent: AccountLifecycleEvent? = nil,
-        senderId: String? = nil,
-        originatingIp: String? = nil
-        ) throws -> Future<TelesignMessageResponse> {
+    public func send(message: String,
+                     to recepient: String,
+                     messageType: MessageType,
+                     callbackURL: String?,
+                     lifecycleEvent: AccountLifecycleEvent?,
+                     senderId: String?,
+                     originatingIp: String?) throws -> Future<TelesignMessageResponse> {
         
         var bodyData = [
             "message": message,

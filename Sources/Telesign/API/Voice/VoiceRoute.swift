@@ -14,6 +14,28 @@ public protocol VoiceRoute {
     func getResultFor(reference: String) throws -> Future<TelesignVoiceResponse>
 }
 
+extension VoiceRoute {
+    public func send(message: String,
+                     to recepient: String,
+                     messageType: MessageType,
+                     voice: VoiceLanguage? = nil,
+                     callbackURL: String? = nil,
+                     lifecycleEvent: AccountLifecycleEvent? = nil,
+                     originatingIp: String? = nil) throws -> Future<TelesignVoiceResponse> {
+        return try send(message: message,
+                        to: recepient,
+                        messageType: messageType,
+                        voice: voice,
+                        callbackURL: callbackURL,
+                        lifecycleEvent: lifecycleEvent,
+                        originatingIp: originatingIp)
+    }
+    
+    public func getResultFor(reference: String) throws -> Future<TelesignVoiceResponse> {
+        return try getResultFor(reference: reference)
+    }
+}
+
 public struct Voice: VoiceRoute {
     private var request: TelesignRequest
     
@@ -22,15 +44,13 @@ public struct Voice: VoiceRoute {
     }
     
     @discardableResult
-    public func send(
-        message: String,
-        to recepient: String,
-        messageType: MessageType,
-        voice: VoiceLanguage? = nil,
-        callbackURL: String? = nil,
-        lifecycleEvent: AccountLifecycleEvent? = nil,
-        originatingIp: String? = nil
-        ) throws -> Future<TelesignVoiceResponse> {
+    public func send(message: String,
+                     to recepient: String,
+                     messageType: MessageType,
+                     voice: VoiceLanguage? = nil,
+                     callbackURL: String? = nil,
+                     lifecycleEvent: AccountLifecycleEvent? = nil,
+                     originatingIp: String? = nil) throws -> Future<TelesignVoiceResponse> {
         var bodyData = [
             "message":message,
             "phone_number": recepient,
