@@ -38,7 +38,7 @@ public final class TelesignProvider: Provider {
     }
 }
 
-public struct TelesignClient: Service {
+public final class TelesignClient: Service {
     public let messaging: MessageRoute
     public let phoneid: PhoneRoute
     public let score: ScoreRoute
