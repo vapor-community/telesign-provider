@@ -39,10 +39,10 @@ public final class TelesignProvider: Provider {
 }
 
 public final class TelesignClient: Service {
-    public let messaging: MessageRoute
-    public let phoneid: PhoneRoute
-    public let score: ScoreRoute
-    public let voice: VoiceRoute
+    public var messaging: MessageRoute
+    public var phoneid: PhoneRoute
+    public var score: ScoreRoute
+    public var voice: VoiceRoute
     
     internal init(config: TelesignConfig, client: Client) {
         let apiRequest = APIRequest(apiKey: config.apiKey, customerId: config.customerId, httpClient: client)
