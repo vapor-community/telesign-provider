@@ -12,7 +12,7 @@
 Start by adding the repo to your `Package.swift`
 
 ~~~~swift
-.package(url: "https://github.com/vapor-community/telesign-provider.git", from: "2.0.0")
+.package(url: "https://github.com/vapor-community/telesign-provider.git", from: "2.0.2")
 ~~~~
 
 Register the config and the provider to your Application
