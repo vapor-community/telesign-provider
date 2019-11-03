@@ -1,43 +1,28 @@
-# Vapor Telesign Provider
+# TelesignProvider
 
-![Swift](http://img.shields.io/badge/swift-4.1-brightgreen.svg)
-![Vapor](http://img.shields.io/badge/vapor-3.0-brightgreen.svg)
-[![CircleCI](https://circleci.com/gh/vapor-community/telesign-provider/tree/master.svg?style=svg)](https://circleci.com/gh/vapor-community/telesign-provider/tree/master)
+![Swift](http://img.shields.io/badge/swift-5.1-brightgreen.svg)
+![Vapor](http://img.shields.io/badge/vapor-4.0-brightgreen.svg)
 
+### TelesignProvider is a Vapor wrapper around [TelesignKit](https://github.com/vapor-community/TelesignKit)
 
-## What's Telesign?
-[Telesign][telesign_home] is a Communication Platform as a Service. Allowing you to send SMS messages for your use case, text to voice communications, phone identification to reduce risk/fraud and many other things.
+## Installation
 
-## Integrating with your Vapor project
-Start by adding the repo to your `Package.swift`
+In your `Package.swift` file, add the following
 
+```swift
+.package(url: "https://github.com/vapor-community/telesign-provider.git", from: "3.0.0-beta")
+```
+
+Register the provider to your Application in `Configure.swift`
 ~~~~swift
-.package(url: "https://github.com/vapor-community/telesign-provider.git", from: "2.0.2")
+app.register(TelesignProvider(apiKey: "YOUR_API_KEY", customerId: "YOUR_CUSTOMER_ID"))
 ~~~~
 
-Register the config and the provider to your Application
+Now we can interact with the API via the `TelesignClient` that's created on your behalf via the Provider we just registered. 
 ~~~~swift
-let config = TelesignConfig(apiKey: "myapikey", customerId: "mycustomerId")
+import Telesign
 
-services.register(config)
+let telesignClient = app.make(TelesignClient.self)
 
-try services.register(TelesignProvider())
-
-app = try Application(services: services)
-
-telesignClient = try app.make(TelesignClient.self)
+telesignClient.messaging.send(message: "Hello Vapor!", to: "1234567", messageType: .ARN)
 ~~~~
-
-And you are all set. Interacting with the API is quite easy and adopts the `Future` syntax used in Vapor 3.
-Making calls to the api is straight forward.
-~~~~swift
-try telesignClient.messaging.send(message: "Hello Vapor", to: "1234567", messageType: .ARN)
-~~~~
-
-## Supports the full API
-* [x] Messaging
-* [x] PhoneId
-* [x] Score
-* [x] Voice
-
-[telesign_home]: https://www.telesign.com "Telesign"
