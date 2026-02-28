@@ -11,7 +11,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.115.0"),
-        .package(url: "https://github.com/vapor-community/telesignkit.git", from: "1.0.0"),
+        .package(url: "https://github.com/vapor-community/telesignkit.git", from: "3.2.0-beta"),
     ],
     targets: [
         .target(name: "Telesign",
