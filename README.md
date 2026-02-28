@@ -1,6 +1,6 @@
 # TelesignProvider
 
-![Swift](http://img.shields.io/badge/swift-5.1-brightgreen.svg)
+![Swift](http://img.shields.io/badge/swift-6.0-brightgreen.svg)
 ![Vapor](http://img.shields.io/badge/vapor-4.0-brightgreen.svg)
 
 ### TelesignProvider is a Vapor wrapper around [TelesignKit](https://github.com/vapor-community/TelesignKit)
