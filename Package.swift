@@ -4,23 +4,22 @@ import PackageDescription
 let package = Package(
     name: "Telesign",
     platforms: [
-       .macOS(.v10_15)
+       .macOS(.v10_15),
     ],
     products: [
-        .library(name: "Telesign", targets: ["Telesign"])
+        .library(name: "Telesign", targets: ["Telesign"]),
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", from: "4.115.0"),
-        .package(url: "https://github.com/vapor-community/telesignkit.git", from: "3.2.0-beta"),
+        .package(url: "https://github.com/vapor-community/telesign-kit.git", from: "3.2.0-beta"),
     ],
     targets: [
-        .target(name: "Telesign",
-            dependencies: [
+        .target(name: "Telesign", dependencies: [
             .product(name: "Vapor", package: "vapor"),
             .product(name: "TelesignKit", package: "TelesignKit")
-            ]),
-        .testTarget(name: "TelesignTests",
-         dependencies: [
-            .product(name: "Vapor", package: "vapor"), "Telesign"])
+        ]),
+        .testTarget(name: "TelesignTests", dependencies: [
+            .product(name: "Vapor", package: "vapor"), "Telesign"
+        ]),
     ]
 )
