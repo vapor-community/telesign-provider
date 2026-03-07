@@ -16,10 +16,11 @@ let package = Package(
     targets: [
         .target(name: "Telesign", dependencies: [
             .product(name: "Vapor", package: "vapor"),
-            .product(name: "TelesignKit", package: "TelesignKit")
+            .product(name: "TelesignKit", package: "telesign-kit"),
         ]),
         .testTarget(name: "TelesignTests", dependencies: [
-            .product(name: "Vapor", package: "vapor"), "Telesign"
+            .product(name: "Vapor", package: "vapor"),
+            .target(name: "Telesign"),
         ]),
     ]
 )
